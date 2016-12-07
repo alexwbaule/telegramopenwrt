@@ -1,0 +1,12 @@
+#!/bin/sh
+
+for wifi in wlan0 wlan1
+do
+	macaddr=$(iw dev ${wifi} station dump | grep Station | grep -oE "([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}" | awk '{printf $0 " "}')
+	for lease in ${macaddr}
+	do
+		echo -en "Wifi: ${wifi}\n"
+		cat /tmp/dhcp.leases | grep ${lease} | awk '{gsub( "_","\\_" ); printf "Device: " $4 "\nIP: " $3 "\nMac: " $2 "\n\n"}'
+	done
+done
+

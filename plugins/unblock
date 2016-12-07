@@ -1,0 +1,18 @@
+#!/bin/sh
+
+NAME="$1" 
+
+TOTAL=0
+for rule in $(uci show firewall | grep "Telegram ${NAME}" | grep -oE "\[([[:digit:]])\]")
+do
+	uci delete firewall.@rule${rule}
+	TOTAL=$(($TOTAL+1))
+done
+
+if [ $TOTAL > 0 ]; then
+	uci commit firewall &> /dev/null
+	/etc/init.d/firewall restart &> /dev/null
+	echo "Deleted $TOTAL rules !"
+	return 0
+fi
+return 1

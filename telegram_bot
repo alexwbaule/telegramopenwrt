@@ -1,0 +1,41 @@
+#!/bin/sh
+
+key='[PUT YOUR BOT KEY HERE]'
+api="https://api.telegram.org/bot$key"
+touch  /tmp/bot_vars.sh
+path="${PWD}"
+plugins="${path}/plugins"
+
+while [ true ]
+do 
+	source /tmp/bot_vars.sh
+	offset=$(($offset+1))
+	status=0
+	updates=$(curl -s -k -X GET $api/getUpdates?offset=$offset)
+	status=$(jsonfilter -s "$updates" -e $.ok)
+	if [ $status = 'true' ]; then
+		update_ids=$(jsonfilter -s "$updates" -e $.result[*].update_id)
+	
+		for update_id in $update_ids
+		do
+			sender=$(jsonfilter -s "$updates"  -e "$.result[@.update_id=$update_id].message.from.id")
+			command=$(jsonfilter -s "$updates" -e "$.result[@.update_id=$update_id].message.text")
+			cmd=$(echo $command |  awk '{print $1}')
+			parms=$(echo $command | awk '{$1=""; print $0}')
+			
+			if [ -f "${plugins}/$cmd" ]; then
+				cd ${plugins}
+				command=$("./$cmd" $parms)
+				curl -k -s -X POST $api/sendMessage -d chat_id=$sender -d parse_mode=Markdown --data-urlencode text="$command" &> /tmp/telegram.log
+				cd  ${path}
+			else
+				curl -k -s -X POST $api/sendMessage -d chat_id=$sender -d parse_mode=Markdown --data-urlencode text="Command *${cmd}* not found!" &> /tmp/telegram.log
+			fi
+		done
+	
+		if [ -n "$update_ids" ]; then
+			echo "offset=$update_id" > /tmp/bot_vars.sh
+	  	fi
+	fi
+	sleep 1
+done&

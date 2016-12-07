@@ -1,0 +1,11 @@
+#!/bin/sh
+
+command="$1"
+
+key='[PUT YOUR BOT KEY HERE]'
+api="https://api.telegram.org/bot$key"
+sender='[PUT ID OF THE CHAT THAT YOU START WITH BOT]'
+
+command_new=${command//_/\\_}
+
+curl -k -s -X POST $api/sendMessage -d chat_id=$sender -d parse_mode=Markdown --data-urlencode text="$command_new" &>/tmp/telegram.log

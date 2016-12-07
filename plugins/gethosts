@@ -1,0 +1,11 @@
+#!/bin/sh
+
+parms="$1"
+
+echo "*Hosts*"
+
+if [ "$parms" != "" ]; then
+	cat /tmp/dhcp.leases | grep "$parms" | awk '{gsub( "_","\\_" ); printf "Device: " $4 "\nIP: " $3 "\nMac: " $2 "\n\n"}'
+else
+	cat /tmp/dhcp.leases | awk '{gsub( "_","\\_" );printf "Device: " $4 "\nIP: " $3 "\nMac: " $2 "\n\n"}'
+fi

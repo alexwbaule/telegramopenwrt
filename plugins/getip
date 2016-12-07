@@ -1,0 +1,4 @@
+#!/bin/sh
+
+ip=$(ifconfig eth0.2 | grep inet | grep -v inet6 | awk '{print $2}' | awk -F : '{print "*IP:* " $2}')
+echo $ip
