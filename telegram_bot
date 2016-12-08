@@ -21,7 +21,8 @@ do
 			sender=$(jsonfilter -s "$updates"  -e "$.result[@.update_id=$update_id].message.from.id")
 			command=$(jsonfilter -s "$updates" -e "$.result[@.update_id=$update_id].message.text")
 			cmd=$(echo $command |  awk '{print $1}')
-			parms=$(echo $command | awk '{$1=""; print $0}')
+			prms=$(echo $command | awk '{$1=""; print $0}')
+			parms=${prms//[\"\&\;\\\>\<\|]/}
 			
 			if [ -f "${plugins}/$cmd" ]; then
 				cd ${plugins}
