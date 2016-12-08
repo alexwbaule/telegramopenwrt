@@ -6,4 +6,4 @@ command="$1"
 
 command_new=${command//_/\\_}
 
-curl -k -s -X POST $api/sendMessage -d chat_id=$sender -d parse_mode=Markdown --data-urlencode text="$command_new" &>/tmp/telegram.log
+curl -k -s -X POST $api/sendMessage -d chat_id=$my_chat_id -d parse_mode=Markdown --data-urlencode text="$command_new" &>/tmp/telegram.log

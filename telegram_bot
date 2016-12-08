@@ -1,9 +1,15 @@
 #!/bin/sh
 
 source variables
+
 touch  /tmp/bot_vars.sh
 path="${PWD}"
 plugins="${path}/plugins"
+command_not_found="Sorry,
+I only recognize *commands*.
+Commands are words beginning with a slash.
+Try it !
+Send [/start](/start) to get my commands list."
 
 while [ true ]
 do 
@@ -17,19 +23,28 @@ do
 	
 		for update_id in $update_ids
 		do
-			sender=$(jsonfilter -s "$updates"  -e "$.result[@.update_id=$update_id].message.from.id")
+			origin=$(jsonfilter -s "$updates"  -e "$.result[@.update_id=$update_id].message.from.id")
 			command=$(jsonfilter -s "$updates" -e "$.result[@.update_id=$update_id].message.text")
-			cmd=$(echo $command |  awk '{print $1}')
-			prms=$(echo $command | awk '{$1=""; print $0}')
-			parms=${prms//[\"\&\;\\\>\<\|]/}
-			
-			if [ -f "${plugins}/$cmd" ]; then
-				cd ${plugins}
-				command=$("./$cmd" $parms)
-				curl -k -s -X POST $api/sendMessage -d chat_id=$sender -d parse_mode=Markdown --data-urlencode text="$command" &> /tmp/telegram.log
-				cd  ${path}
+			is_a_cmd=$(jsonfilter -s "$updates" -e "$.result[@.update_id=$update_id].message.entities[*].type")
+			if [ "$origin" != "$my_chat_id" ];then
+				curl -k -s -X POST $api/sendMessage -d chat_id=$origin -d parse_mode=Markdown --data-urlencode text="This is a Private bot." &> /tmp/telegram.log
+				curl -k -s -X POST $api/leaveChat -d chat_id=$origin  &> /tmp/telegram.log
 			else
-				curl -k -s -X POST $api/sendMessage -d chat_id=$sender -d parse_mode=Markdown --data-urlencode text="Command *${cmd}* not found!" &> /tmp/telegram.log
+				if [ "$is_a_cmd" ==  "bot_command" ]; then
+					cmd=$(echo $command |  awk '{print $1}')
+					prms=$(echo $command | awk '{$1=""; print $0}')
+					parms=${prms//[\"\&\;\\\>\<\|]/}			
+					if [ -f "${plugins}$cmd" ]; then
+						cd ${plugins}
+						command=$("./$cmd" $parms)
+						curl -k -s -X POST $api/sendMessage -d chat_id=$origin -d parse_mode=Markdown --data-urlencode text="$command" &> /tmp/telegram.log
+						cd  ${path}
+					else
+						curl -k -s -X POST $api/sendMessage -d chat_id=$origin -d parse_mode=Markdown --data-urlencode text="Command *${cmd}* not found!" &> /tmp/telegram.log
+					fi
+				else
+					curl -k -s -X POST $api/sendMessage -d chat_id=$origin -d parse_mode=Markdown --data-urlencode text="${command_not_found}" &> /tmp/telegram.log
+				fi
 			fi
 		done
 	
