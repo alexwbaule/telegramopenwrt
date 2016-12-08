@@ -1,7 +1,6 @@
 #!/bin/sh
 
-key='[PUT YOUR BOT KEY HERE]'
-api="https://api.telegram.org/bot$key"
+source variables
 touch  /tmp/bot_vars.sh
 path="${PWD}"
 plugins="${path}/plugins"

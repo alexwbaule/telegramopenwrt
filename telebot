@@ -1,10 +1,8 @@
 #!/bin/sh
 
-command="$1"
+source variables
 
-key='[PUT YOUR BOT KEY HERE]'
-api="https://api.telegram.org/bot$key"
-sender='[PUT ID OF THE CHAT THAT YOU START WITH BOT]'
+command="$1"
 
 command_new=${command//_/\\_}
 

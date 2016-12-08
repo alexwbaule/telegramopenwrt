@@ -1,0 +1,10 @@
+#!/bin/ash
+
+source ../variables
+
+curl -s -k -H "Authorization:Basic [AUTH TOKEN HERE]" "http://{IP FROM IP CAM}/snapshot.cgi?user=[USER]&pwd=[PWD]" -o /tmp/pic.jpg -D /tmp/header
+
+curl -k -X POST $api/sendPhoto -H "Content-Type: multipart/form-data" -F "chat_id=$sender" -F "photo=@/tmp/pic.jpg" &> /tmp/telegram_photo.log
+
+echo "*Last Pic from camera*"
+cat /tmp/header | grep "Date\|Server"
