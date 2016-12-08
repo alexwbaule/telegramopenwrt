@@ -8,14 +8,14 @@ First of all,
 Make a bot for you !
 https://core.telegram.org/bots/api#authorizing-your-bot
 
-With the bot created, you need to replace "[PUT YOUR BOT KEY HERE]" in telebot and telegram\_bot file with your bot key.
+With the bot created, you need to replace "[PUT YOUR BOT KEY HERE]" in variables  file with your bot key.
 
 Second, you need to send a initial message to your bot in Telegram App.
 After you send the message, in the OpenWRT run this:
 
 ``` curl -s -k -X GET https://api.telegram.org/bot<YOUR BOT ID>/getUpdates | grep -oE "\"id\":[[:digit:]]+" | head -n1 | awk -F : '{print $2}'```
 
-Get the number and replace "[PUT ID OF THE CHAT THAT YOU START WITH BOT]" in the telebot file.
+Get the number and replace "[PUT ID OF THE CHAT THAT YOU START WITH BOT]" in the variables file.
 
 ### Directory structure
 
