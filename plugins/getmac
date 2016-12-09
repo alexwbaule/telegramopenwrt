@@ -2,7 +2,7 @@
 
 PUREMAC="${1:0:8}"
 LMAC=$(echo $PUREMAC | awk '{ print toupper($0) }')
-MAC=${LMAC//:/-}
+MAC=${LMAC//:/}
 
 maclist=$(curl -s -k -L -X GET -H "Content-Type: application/json; charset=utf-8" \
 	-H "Origin: https://regauth.standards.ieee.org" \
