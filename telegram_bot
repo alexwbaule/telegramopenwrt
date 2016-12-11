@@ -5,7 +5,7 @@ PATH='/usr/bin:/usr/sbin:/bin:/sbin'
 source /root/variables
 
 touch  /tmp/bot_vars.sh
-path="${PWD}"
+path="/root"
 plugins="${path}/plugins"
 command_not_found="Sorry,
 I only recognize *commands*.
