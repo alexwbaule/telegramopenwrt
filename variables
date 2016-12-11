@@ -1,4 +1,10 @@
-
 key='[PUT YOUR BOT KEY HERE]'
 api="https://api.telegram.org/bot$key"
 my_chat_id='[PUT ID OF THE CHAT THAT YOU START WITH BOT]'
+header_auth='[HEADER AUTH]'
+ipaddr='[CAMERA IP OR HOSTNAME]' 
+user='[CAMERA USER]'
+passwd='[CAMERA PASSWD]'
+From='[MAIL FROM]'
+To='[MAIL TO]'
+Sender='[MAIL SENDER]'

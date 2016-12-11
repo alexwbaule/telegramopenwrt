@@ -1,6 +1,8 @@
 #!/bin/sh
 
-source variables
+PATH='/usr/bin:/usr/sbin:/bin:/sbin'
+
+source /root/variables
 
 touch  /tmp/bot_vars.sh
 path="${PWD}"
@@ -24,10 +26,13 @@ do
 		for update_id in $update_ids
 		do
 			origin=$(jsonfilter -s "$updates"  -e "$.result[@.update_id=$update_id].message.from.id")
+			msg_id=$(jsonfilter -s "$updates"  -e "$.result[@.update_id=$update_id].message.message_id")
 			command=$(jsonfilter -s "$updates" -e "$.result[@.update_id=$update_id].message.text")
 			is_a_cmd=$(jsonfilter -s "$updates" -e "$.result[@.update_id=$update_id].message.entities[*].type")
+			curl -k -s -X POST $api/getChatMember -d chat_id=$origin -d user_id=$origin >> /tmp/user.log
+
 			if [ "$origin" != "$my_chat_id" ];then
-				curl -k -s -X POST $api/sendMessage -d chat_id=$origin -d parse_mode=Markdown --data-urlencode text="This is a Private bot." &> /tmp/telegram.log
+				curl -k -s -X POST $api/sendMessage -d reply_to_message_id=$msg_id -d chat_id=$origin -d parse_mode=Markdown --data-urlencode text="This is a Private bot." &> /tmp/telegram.log
 				curl -k -s -X POST $api/leaveChat -d chat_id=$origin  &> /tmp/telegram.log
 			else
 				if [ "$is_a_cmd" ==  "bot_command" ]; then
@@ -43,7 +48,7 @@ do
 						curl -k -s -X POST $api/sendMessage -d chat_id=$origin -d parse_mode=Markdown --data-urlencode text="Command *${cmd}* not found!" &> /tmp/telegram.log
 					fi
 				else
-					curl -k -s -X POST $api/sendMessage -d chat_id=$origin -d parse_mode=Markdown --data-urlencode text="${command_not_found}" &> /tmp/telegram.log
+					curl -k -s -X POST $api/sendMessage -d reply_to_message_id=$msg_id -d chat_id=$origin -d parse_mode=Markdown --data-urlencode text="${command_not_found}" &> /tmp/telegram.log
 				fi
 			fi
 		done

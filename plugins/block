@@ -3,7 +3,7 @@
 NAME="$1"
 TIME="$2"
 if [ "$NAME" != "" ]; then
-	MAC=$(cat /etc/config/dhcp |grep -A 1 ${NAME} | grep -oE "([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}" |awk '{printf $0}')
+	MAC=$(cat /etc/config/dhcp |grep -A 1 "$NAME" | grep -oE "([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}" |awk '{printf $0}')
 	if [ "$MAC" != "" ]; then
 		uci add firewall rule
 		uci set firewall.@rule[-1].src='lan'

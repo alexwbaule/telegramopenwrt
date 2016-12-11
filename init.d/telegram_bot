@@ -1,19 +1,22 @@
 #!/bin/sh /etc/rc.common
-# Copyright (C) 2006-2014 OpenWrt.org
+# Copyright (C) 2006-2011 OpenWrt.org
 
 START=95
 STOP=15
 
-SERVICE_USE_PID=1
+USE_PROCD=1
+PROG=/root/telegram_bot
 
-boot() {
-	return
+start_service () {
+	service_start ${PROG}
 }
 
-start() {
-	service_start /root/telegram_bot
-}
-
-stop() {
+stop_service() {
 	kill $(pgrep -f telegram_bot)
 }
+
+restart(){      
+        stop_service    
+        sleep 1 
+        start_service   
+}               

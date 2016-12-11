@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo -en "I can help you to manage and get some informations about yout OpenWRT Router.\nThis is the avaliable commands list:\n\n"
+echo -en "I can help you to manage and get some informations about your OpenWRT Router.\nThis is the avaliable commands list:\n\n"
 ALLPLUGINS=$(ls -1 -p | grep -v "/")
 for plug in $ALLPLUGINS
 do

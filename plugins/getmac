@@ -19,6 +19,8 @@ do
 		name=$(jsonfilter -s "$maclist" -e $.data.hits[$i].organizationName)
 		#echo "Identifier: $LMAC"
 		echo "Organization: $name"
+		exit
 	fi
 	i=$((i+1))
 done
+echo "Organization: Not Found!"

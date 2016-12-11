@@ -1,20 +1,22 @@
 #!/bin/sh /etc/rc.common
-# Copyright (C) 2006-2014 OpenWrt.org
+# Copyright (C) 2006-2011 OpenWrt.org
 
 START=95
 STOP=15
 
-SERVICE_USE_PID=1
+USE_PROCD=1
+PROG=/root/lanports
 
-boot() {
-	return
+start_service () {
+	service_start ${PROG}
 }
 
-start() {
-	service_start /root/lanports
+stop_service() {
+	kill $(pgrep -f telegram_bot)
 }
 
-stop() {
-	kill $(pgrep -f lanports)
-	kill $(pgrep -f logread)
-}
+restart(){      
+        stop_service    
+        sleep 1 
+        start_service   
+} 

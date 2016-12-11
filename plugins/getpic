@@ -1,10 +1,14 @@
 #!/bin/ash
 
+id="$1"
+
 source ../variables
 
-curl -s -k -H "Authorization:Basic [AUTH TOKEN HERE]" "http://{IP FROM IP CAM}/snapshot.cgi?user=[USER]&pwd=[PWD]" -o /tmp/pic.jpg -D /tmp/header
+curl -k -X POST $api/sendChatAction -d "chat_id=$my_chat_id" -d "action=upload_photo" &> /tmp/telegram.log
 
-curl -k -X POST $api/sendPhoto -H "Content-Type: multipart/form-data" -F "chat_id=$my_chat_id" -F "photo=@/tmp/pic.jpg" &> /tmp/telegram_photo.log
+curl -s -k -H "Authorization:Basic ${header_auth}" "http://${ipaddr}/snapshot.cgi?user=${user}&pwd=${passwd}" -o /tmp/pic.jpg -D /tmp/header
 
-echo "*Last Pic from camera*"
-cat /tmp/header | grep "Date\|Server"
+DETAILS=$(cat /tmp/header | grep "Date\|Server")
+
+curl -k -X POST $api/sendPhoto -H "Content-Type: multipart/form-data" -F "chat_id=$my_chat_id" -F "photo=@/tmp/pic.jpg" -F "reply_to_message_id=$id" -F "caption=$DETAILS" &> /tmp/telegram_photo.log
+
