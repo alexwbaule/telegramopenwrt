@@ -1,6 +1,8 @@
 #!/bin/sh
 
-source variables
+export PATH='/usr/bin:/usr/sbin:/bin:/sbin'
+
+source /root/variables
 
 command="$1"
 
