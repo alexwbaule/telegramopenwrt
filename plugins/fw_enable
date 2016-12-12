@@ -1,0 +1,12 @@
+#!/bin/sh
+
+names="$1"
+for id in $(uci show firewall |grep "@rule" | grep name | grep "Anna Julia" |grep -oE "\[[[:digit:]]+\]" | awk '{gsub("\\[|]","");print $1}')
+do
+	uci set firewall.@rule[$id].enabled='1'
+	echo "rule id $id enabled..."
+done
+uci commit firewall &> /dev/null
+/etc/init.d/firewall restart &> /dev/null
+echo "rules is enabled"
+exit 0

@@ -11,7 +11,7 @@ do
 			echo -en "Wifi: 5Ghz\n"
 		fi
 		cat /tmp/dhcp.leases | grep ${lease} | awk '{gsub( "_","\\_" ); printf "Device: " $4 "\nIP: " $3 "\nMac: " toupper($2) "\n"}'
-		./getmac "${lease}"
+		./get_mac "${lease}"
 		echo -en "\n"
 	done
 done

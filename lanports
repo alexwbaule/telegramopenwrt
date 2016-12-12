@@ -12,6 +12,7 @@ logread -f |while read line; do
 		state=$(echo "${ports}" | cut -d ' ' -f 4)	
 		echo "From: ${From}"$'\n'"To: ${To}"$'\n'"Subject: [openwrt] Port ${pnum} is ${state}"$'\n\n'"Data: ${date}"$'\n'"Porta: ${pnum}"$'\n'"Estado: ${state}" | ssmtp "${Sender}"
 		telegram=$(echo "*Port:* ${pnum}"$'\n'"*Data:* ${date}"$'\n'"*State:* ${state}")
+		echo $telegram >>/tmp/log/lanports.log
 		/root/telebot "$telegram"
 	fi
 	echo "${line}" | grep -q "DHCPACK"
@@ -23,6 +24,7 @@ logread -f |while read line; do
 		name=$(echo "${dados}" | cut -d ' ' -f 3)
 		echo "From: ${From}"$'\n'"To: ${To}"$'\n'"Subject: [openwrt] DHCP-ACK ${name} has ${ip}"$'\n\n'"Data: ${date}"$'\n'"IP: ${ip}"$'\n'"MACADDR: ${macaddr}" | ssmtp "${Sender}"
 		telegram=$(echo "*Device:* ${name}"$'\n'"*Data:* ${date}"$'\n'"*IP:* ${ip}"$'\n'"*MACADDR:* ${macaddr}")
+		echo $telegram >>/tmp/log/lanports.log
 		/root/telebot "$telegram"
 	fi
 done&

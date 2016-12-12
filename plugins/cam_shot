@@ -2,7 +2,7 @@
 
 id="$1"
 
-source ../variables
+source /root/variables
 
 curl -k -X POST $api/sendChatAction -d "chat_id=$my_chat_id" -d "action=upload_photo" &> /tmp/telegram.log
 
