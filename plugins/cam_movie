@@ -1,0 +1,17 @@
+#!/bin/ash
+
+id="$1"
+
+source /root/variables
+
+curl -k -X POST $api/sendChatAction -d "chat_id=$my_chat_id" -d "action=record_video" &> /tmp/telegram.log
+
+curl -s -k -H "Authorization:Basic ${header_auth}" "http://${ipaddr}/videostream.asf?user=${user}&pwd=${passwd}" -m 25 -o /tmp/movie.asf -D /tmp/header
+
+curl -k -X POST $api/sendChatAction -d "chat_id=$my_chat_id" -d "action=record_video" &> /tmp/telegram.log
+
+DETAILS=$(cat /tmp/header | grep "Date\|Server")
+
+curl -k -X POST $api/sendVideo -H "Content-Type: multipart/form-data" -F "chat_id=$my_chat_id" -F "video=@/tmp/movie.asf" -F "reply_to_message_id=$id" -F "caption=$DETAILS" &> /tmp/telegram_photo.log
+
+rm -f /tmp/movie.asf
