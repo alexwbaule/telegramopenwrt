@@ -6,9 +6,13 @@ TOTAL=0
 
 echo "*Rules*"
 
-for rule in $(uci show firewall  | grep rule )
+for rule in $(uci show firewall  | grep "@rule" )
 do
 	line=$(echo ${rule} | awk -F "." '{print $3}')
+	id=$(echo ${rule} | grep ".name" | grep -oE "\[[[:digit:]]+\]" | awk '{gsub("\\[|]","");printf $1}')
+	if [ "$id" != "" ]; then
+		echo "id=$id"
+	fi
 	new=${line//\'/}
 	new2=${new//_/\\_}
 	echo ${new2//\*/all}
