@@ -3,8 +3,6 @@
 RULE_NUM="$1"
 RULE_NAME="$2"
 
-echo "[$RULE_NUM] [$RULE_NAME]" >> /tmp/disable
-
 if [ "$RULE_NUM" == "" ]; then
 	echo "Rule Num Error!!"
 	return 1
