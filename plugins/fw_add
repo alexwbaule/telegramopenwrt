@@ -1,0 +1,36 @@
+#!/bin/sh
+
+NAME="$1"
+TIME="$2"
+
+if [ "$NAME" != "" ]; then
+	MAC=$(cat /etc/config/dhcp |grep -A 1 "$NAME" | grep -oE "([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}" |awk '{printf $0}')
+	if [ "$MAC" != "" ]; then
+		uci add firewall rule
+		uci set firewall.@rule[-1].src='lan'
+		uci set firewall.@rule[-1].dest='wan' 
+		uci set firewall.@rule[-1].proto='all'
+		uci set firewall.@rule[-1].target='REJECT'
+		uci set firewall.@rule[-1].src_mac="$MAC"
+		if [ "$TIME" == "time" ]; then
+			uci set firewall.@rule[-1].name="Bloqueio Time Telegram ${NAME}"
+			uci set firewall.@rule[-1].start_time='23:00'
+			uci set firewall.@rule[-1].stop_time='08:00'
+			uci set firewall.@rule[-1].weekdays='mon tue wed thu fri sat sun'
+			uci set firewall.@rule[-1].extra='--kerneltz'
+		else
+			uci set firewall.@rule[-1].name="Bloqueio Telegram ${NAME}"
+		fi
+		uci reorder firewall.@rule[-1]=1 
+		uci commit firewall &> /dev/null
+		/etc/init.d/firewall restart &> /dev/null
+		if [ "$TIME" == "time" ]; then
+			echo "New rule between 23:00 and 8:00 for ${NAME} created successfully !"
+		else
+			echo "New rule for ${NAME} created successfully !"
+		fi
+		exit 0
+	fi
+fi
+echo "Error creating new rule !"
+exit 1

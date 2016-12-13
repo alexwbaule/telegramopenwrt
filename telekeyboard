@@ -8,10 +8,11 @@ command="$1"
 
 command_new=${command//_/\\_}
 
-rules=$(uci show firewall |grep "@rule" | grep name |grep -oE "\[[[:digit:]]+\].name='([[:graph:]]|[[:blank:]])+'" | awk -F ".name=" '{gsub("\\[|]","");print "[\""$1  " - " $2 "\"],"}')
+firewall=$(uci show firewall |grep "@rule" | grep name |grep -oE "\[[[:digit:]]+\].name='([[:graph:]]|[[:blank:]])+'" | awk -F ".name=" '{gsub(/[\047]|\[|\]/,"");print "[ {\"callback_data\": \""$1 "\" ,\"text\" : \"" $2 "\"} ],"}')
+rules=${firewall:0:$((${#firewall}-1))}
 
-keyboard='{"keyboard": ['$rules'["back"]],"one_time_keyboard": true}'
+keyboard='{"inline_keyboard": ['$rules'] }'
 
 echo $keyboard
 
-curl -k -s -X POST -H "Charset: UTF-8"  $api/sendMessage -d chat_id=$my_chat_id -d "reply_markup=${keyboard}" -d "text=All rules in firewall"
+curl -k -s -X POST -H "Charset: UTF-8"  $api/sendMessage -d chat_id=$my_chat_id -d "reply_markup=${keyboard}" -d "text=Choose one:"

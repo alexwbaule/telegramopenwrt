@@ -1,0 +1,17 @@
+#!/bin/sh
+
+RULE_NUM="$1"
+RULE_NAME="$2"
+
+echo "[$RULE_NUM] [$RULE_NAME]" >> /tmp/disable
+
+if [ "$RULE_NUM" == "" ]; then
+	echo "Rule Num Error!!"
+	return 1
+else
+	uci set firewall.@rule[$RULE_NUM].enabled='0'
+	uci commit firewall &> /dev/null
+	/etc/init.d/firewall restart &> /dev/null
+	echo "rule $RULE_NAME is disabled."
+	exit 0
+fi

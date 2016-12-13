@@ -1,12 +1,4 @@
 #!/bin/sh
 
-names="$1"
-for id in $(uci show firewall |grep "@rule" | grep name | grep "Anna Julia" |grep -oE "\[[[:digit:]]+\]" | awk '{gsub("\\[|]","");print $1}')
-do
-	uci set firewall.@rule[$id].enabled='0'
-	echo "rule id $id disabled..."
-done
-uci commit firewall &> /dev/null
-/etc/init.d/firewall restart &> /dev/null
-echo "rules is disabled."
-exit 0
+
+./ctx/fw_list "fw_disable" "Choose a rule to disable:"

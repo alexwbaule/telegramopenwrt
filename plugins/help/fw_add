@@ -1,0 +1,1 @@
+Block a hostname using a deny rule in firewall, if append time to command will block from 23:00 to 8:00
