@@ -59,14 +59,17 @@ do
 					if [ -f "${actions}/$cmd" ]; then
 						cd ${actions}
 						local result=$(IFS="\^" ; "./$fcmd" ${parameter})
-						curl -k -s -X POST $api/answerCallbackQuery -d chat_id=$origin_ans -d callback_query_id=$query_ans -d text="${result}" &> /tmp/telegram.log
-						curl -k -s -X POST $api/editMessageText -d chat_id=$origin_ans -d message_id=$msg_id_ans -d text="${result}" &> /tmp/telegram.log
+						local remove=$(echo $result | awk -F "\|" '{print $1}')
+						local msg=$(echo $result | awk -F "\|" '{print $2}')
+						curl -k -s -X POST $api/answerCallbackQuery -d chat_id=$origin_ans -d callback_query_id=$query_ans -d text="${msg}" &> /tmp/telegram.log
+						if [ "$remove" == "1" ]; then
+							curl -k -s -X POST $api/editMessageText -d chat_id=$origin_ans -d message_id=$msg_id_ans -d text="${msg}" &> /tmp/telegram.log
+						fi
 						cd  ${path}
 					else
 						curl -k -s -X POST $api/sendMessage -d chat_id=$origin_ans -d parse_mode=Markdown --data-urlencode text="Command *${cmd}* not found!" &> /tmp/telegram.log
 					fi
 				else
-					echo "ELSE This is a Query Ans -> $query_ans"
 					curl -k -s -X POST $api/sendMessage -d reply_to_message_id=$msg_id -d chat_id=$origin -d parse_mode=Markdown --data-urlencode text="${command_not_found}" &> /tmp/telegram.log
 				fi
 			fi

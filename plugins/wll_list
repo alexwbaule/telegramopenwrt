@@ -2,17 +2,22 @@
 
 for wifi in wlan0 wlan1
 do
+	if [ "${wifi}" == "wlan0" ]; then
+		echo -en "-----------------*${wifi} - 2.4 Ghz*-----------------------\n"
+	else
+		echo -en "-----------------*${wifi} - 5 Ghz*-------------------------\n"
+	fi
 	macaddr=$(iw dev ${wifi} station dump | grep Station | grep -oE "([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}" | awk '{printf $0 " "}')
 	for lease in ${macaddr}
 	do
-		if [ "${wifi}" == "wlan0" ]; then
-			echo -en "Wifi: 2.4Ghz\n"
+		line=$(cat /tmp/dhcp.leases | grep ${lease})
+		if [ $? == 0 ]; then
+			echo "${line}" | awk '{gsub( "_","\\_" ); printf "Device: " $4 "\nIP: " $3 "\nMac: " toupper($2) "\n"}'
 		else
-			echo -en "Wifi: 5Ghz\n"
+			cat /proc/net/arp | grep ${lease} | awk '{gsub( "_","\\_" ); printf "IP: " $1 "\nMac: " toupper($4) "\n"}'
 		fi
-		cat /tmp/dhcp.leases | grep ${lease} | awk '{gsub( "_","\\_" ); printf "Device: " $4 "\nIP: " $3 "\nMac: " toupper($2) "\n"}'
 		./get_mac "${lease}"
 		echo -en "\n"
 	done
+	#echo -en "-----------------------------------------------------------\n"
 done
-

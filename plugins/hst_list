@@ -5,7 +5,7 @@ parms="$1"
 echo "*Hosts*"
 
 if [ "$parms" != "" ]; then
-	cat /tmp/dhcp.leases | grep "$parms" | awk '{gsub( "_","\\_" ); printf "Device: " $4 "\nIP: " $3 "\nMac: " toupper($2)"\n\n"}'
+	cat /tmp/dhcp.leases | grep "$parms" | awk '{gsub( "_","\\_" ); printf "Date: " ; system("date -D %s -d " "$(( "$1" - 43200))");printf "Device: " $4 "\nIP: " $3 "\nMac: " toupper($2)"\n\n"}'
 else
-	cat /tmp/dhcp.leases | awk '{gsub( "_","\\_" );printf "Device: " $4 "\nIP: " $3 "\nMac: " toupper($2)"\n\n"}'
+	cat /tmp/dhcp.leases | awk '{gsub( "_","\\_" );  printf "Date: " ; system("date -D %s -d " "$(( "$1" - 43200))");printf "Device: " $4 "\nIP: " $3 "\nMac: " toupper($2)"\n\n"}'
 fi
