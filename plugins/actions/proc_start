@@ -1,0 +1,12 @@
+#!/bin/sh
+
+SCRIPT_NAME="$1"
+
+if [ "$SCRIPT_NAME" == "" ]; then
+	echo "1|Service dont exist !!"
+	return 1
+else
+	/etc/init.d/$SCRIPT_NAME start &> /dev/null
+	echo "1|Service $SCRIPT_NAME was started."
+	exit 0
+fi

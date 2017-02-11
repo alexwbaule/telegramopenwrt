@@ -1,0 +1,3 @@
+#!/bin/sh
+
+./ctx/service_list "proc_stop" "Choose a service to stop:"

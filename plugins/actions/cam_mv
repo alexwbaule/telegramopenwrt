@@ -1,0 +1,30 @@
+#!/bin/ash
+
+num="$1"
+
+source /root/variables
+
+# command: 
+# 1 -> para camera
+# 2 -> cima
+# 0 -> baixo
+# 4 -> direita
+# 6 -> esquerda
+# 92 -> cima direita
+# 93 -> cima esquerda
+# 91 -> baixo esquerda
+# 90 -> baixo direita
+# 25 -> movimenta todos lados.
+
+if [ "$num" == "-1" ];then
+	echo "1|Camera new position OK."
+	return
+fi
+
+curl -s -k -H "Authorization:Basic ${header_auth}" "http://${ipaddr}/decoder_control.cgi?command=${num}&user=${user}&pwd=${passwd}" &>/dev/null
+
+sleep 1
+
+mv=$(curl -s -k -H "Authorization:Basic ${header_auth}" "http://${ipaddr}/decoder_control.cgi?command=1&user=${user}&pwd=${passwd}")
+
+echo "0|$mv"

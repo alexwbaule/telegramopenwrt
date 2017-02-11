@@ -1,0 +1,15 @@
+#!/bin/sh
+
+export PATH="/usr/bin:/usr/sbin:/bin:/sbin"
+
+source /root/variables
+
+command="$1"
+text="$2"
+
+SERVICES=$(ls -1 /etc/init.d/ | awk '{print " [ {\"callback_data\": \"##CMD##|"$0"^\" ,\"text\" : \""$0"\"} ],"}')
+rules=${SERVICES:0:$((${#SERVICES}-1))}
+rls=${rules//##CMD##/$command}
+keyboard='{"inline_keyboard": ['$rls'] }'
+
+curl -k -s -X POST -H "Charset: UTF-8"  $api/sendMessage -d chat_id=$my_chat_id -d "reply_markup=${keyboard}" -d "text=${text}"

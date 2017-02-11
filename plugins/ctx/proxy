@@ -1,0 +1,18 @@
+#!/bin/sh
+
+export PATH="/usr/bin:/usr/sbin:/bin:/sbin"
+
+source /root/variables
+
+command="$1"
+msg="$2"
+txt="$3"
+
+HTTP='[ {"callback_data": "'${command}'|0^'${msg}' HTTP" ,"text" : "'${msg}' HTTP"} ]'
+HTTPS='[ {"callback_data": "'${command}'|1^'${msg}' HTTPS" ,"text" : "'${msg}' HTTPS"} ]'
+HTTP_and_HTTPS='[ {"callback_data": "'${command}'|2^'${msg}' HTTP and HTTPS" ,"text" : "'${msg}' HTTP and HTTPS"} ]'
+
+keyboard='{"inline_keyboard": ['$HTTP','$HTTPS','$HTTP_and_HTTPS'] }'
+text=$(echo -en $txt)
+
+curl -k -s -X POST -H "Charset: UTF-8"  $api/sendMessage -d chat_id=$my_chat_id -d "reply_markup=${keyboard}" -d "text=${text}"

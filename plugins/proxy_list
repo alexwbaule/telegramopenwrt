@@ -1,0 +1,13 @@
+HTTP=$(uci get proxy.config.HTTP |awk '{printf $1}')
+HTTPS=$(uci get proxy.config.HTTPS |awk '{printf $1}')
+HTTP_ENABLE=$(iptables -t mangle -nL |grep MARK | grep -Eo "dpt:80" |awk -F ":" '{printf $2}')
+HTTPS_ENABLE=$(iptables -t mangle -nL |grep MARK | grep -Eo "dpt:443" |awk -F ":" '{printf $2}')
+
+if [ "$HTTP_ENABLE"  == "" ] ; then
+	HTTP_ENABLE="--"
+fi
+if [ "$HTTPS_ENABLE"  == "" ] ; then
+	HTTPS_ENABLE="--"
+fi
+
+echo -en "HTTP\n\tConfig enabled: ${HTTP}\n\tEnabled Iptables Port: ${HTTP_ENABLE}\nHTTPS\n\tConfig enabled: ${HTTPS}\n\tEnabled Iptables Port: ${HTTPS_ENABLE}\n\n"

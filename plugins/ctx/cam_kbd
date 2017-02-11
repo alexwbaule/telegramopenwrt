@@ -1,0 +1,14 @@
+#!/bin/sh
+
+export PATH="/usr/bin:/usr/sbin:/bin:/sbin"
+
+source /root/variables
+
+keyboard='{"inline_keyboard":
+[[ {"callback_data": "cam_mv|93","text": "\u2196\ufe0f" }, {"callback_data": "cam_mv|2","text": "\u2b06\ufe0f" }, {"callback_data": "cam_mv|92","text": "\u2197\ufe0f" } ],
+[ {"callback_data": "cam_mv|6","text": "\u2b05\ufe0f" }, {"callback_data": "cam_mv|-1","text": "\u23f9" }, {"callback_data": "cam_mv|4","text": "\u27a1\ufe0f"} ],
+[ {"callback_data": "cam_mv|91","text": "\u2199\ufe0f" }, {"callback_data": "cam_mv|0","text": "\u2b07\ufe0f" }, {"callback_data": "cam_mv|90","text": "\u2198\ufe0f"} ]]}'
+
+text="Now move the camera"
+
+curl -k -s -X POST -H "Charset: UTF-8"  $api/sendMessage -d chat_id=$my_chat_id -d "reply_markup=${keyboard}" -d "text=${text}"

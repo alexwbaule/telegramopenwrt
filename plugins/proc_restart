@@ -1,0 +1,3 @@
+#!/bin/sh
+
+./ctx/service_list "proc_restart" "Choose a service to restart:"

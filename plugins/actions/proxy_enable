@@ -1,0 +1,22 @@
+#!/bin/sh
+
+RULE_NUM="$1"
+RULE_NAME="$2" 
+
+if [ "$RULE_NUM" == "" ]; then
+	echo "1|Rule Num Error!!"
+	return 1
+fi
+
+if [ "$RULE_NUM" == "0" ]; then
+	uci set proxy.config.HTTP=true
+elif [ "$RULE_NUM" == "1" ]; then
+	uci set proxy.config.HTTPS=true
+elif [ "$RULE_NUM" == "2" ]; then
+	uci set proxy.config.HTTP=true
+	uci set proxy.config.HTTPS=true
+fi
+uci commit proxy &> /dev/null
+/etc/init.d/proxy start &> /dev/null
+echo "1|Proxy $RULE_NAME is started."
+exit 0
