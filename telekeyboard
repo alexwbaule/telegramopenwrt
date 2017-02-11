@@ -15,4 +15,4 @@ keyboard='{"inline_keyboard": ['$rules'] }'
 
 echo $keyboard
 
-curl -k -s -X POST -H "Charset: UTF-8"  $api/sendMessage -d chat_id=$my_chat_id -d "reply_markup=${keyboard}" -d "text=Choose one:"
+#curl -k -s -X POST -H "Charset: UTF-8"  $api/sendMessage -d chat_id=$my_chat_id -d "reply_markup=${keyboard}" -d "text=Choose one:"

@@ -8,11 +8,12 @@ logread -f |while read line; do
 	echo "${line}" | grep -q "ag71xx-mdio.0:00: Port"
 	if [ $? == 0 ]; then
 		ports=$(echo "${line}" | grep -oE "Port ([0-9]+) is (up|down)")
+		date=$(echo "${line}" | grep -oE "^[a-zA-Z]+[[:space:]]+[a-zA-z]+[[:space:]]+[0-9]+[[:space:]]+[0-9:]+ [0-9]+")
 		pnum=$(echo "${ports}" | cut -d ' ' -f 2)	
 		state=$(echo "${ports}" | cut -d ' ' -f 4)	
-		echo "From: ${From}"$'\n'"To: ${To}"$'\n'"Subject: [openwrt] Port ${pnum} is ${state}"$'\n\n'"Data: ${date}"$'\n'"Porta: ${pnum}"$'\n'"Estado: ${state}" | ssmtp "${Sender}"
+		#echo "From: ${From}"$'\n'"To: ${To}"$'\n'"Subject: [openwrt] Port ${pnum} is ${state}"$'\n\n'"Data: ${date}"$'\n'"Porta: ${pnum}"$'\n'"Estado: ${state}" | ssmtp "${Sender}"
 		telegram=$(echo "*Port:* ${pnum}"$'\n'"*Data:* ${date}"$'\n'"*State:* ${state}")
-		echo $telegram >>/tmp/log/lanports.log
+		#echo $telegram >>/tmp/log/lanports.log
 		/root/telebot "$telegram"
 	fi
 	echo "${line}" | grep -q "DHCPACK"
@@ -21,10 +22,10 @@ logread -f |while read line; do
 		date=$(echo "${line}" | grep -oE "^[a-zA-Z]+[[:space:]]+[a-zA-z]+[[:space:]]+[0-9]+[[:space:]]+[0-9:]+ [0-9]+")
 		ip=$(echo "${dados}" | cut -d ' ' -f 1)
 		macaddr=$(echo "${dados}" | cut -d ' ' -f 2)
-		name=$(echo "${dados}" | cut -d ' ' -f 3)
-		echo "From: ${From}"$'\n'"To: ${To}"$'\n'"Subject: [openwrt] DHCP-ACK ${name} has ${ip}"$'\n\n'"Data: ${date}"$'\n'"IP: ${ip}"$'\n'"MACADDR: ${macaddr}" | ssmtp "${Sender}"
+		name=$(echo "${dados}" | cut -d ' ' -f 3 | awk '{gsub("*","\*"); gsub( "_","\_" );  printf $0 }')
+		#echo "From: ${From}"$'\n'"To: ${To}"$'\n'"Subject: [openwrt] DHCP-ACK ${name} has ${ip}"$'\n\n'"Data: ${date}"$'\n'"IP: ${ip}"$'\n'"MACADDR: ${macaddr}" | ssmtp "${Sender}"
 		telegram=$(echo "*Device:* ${name}"$'\n'"*Data:* ${date}"$'\n'"*IP:* ${ip}"$'\n'"*MACADDR:* ${macaddr}")
-		echo $telegram >>/tmp/log/lanports.log
+		#echo $telegram >>/tmp/log/lanports.log
 		/root/telebot "$telegram"
 	fi
 done&
