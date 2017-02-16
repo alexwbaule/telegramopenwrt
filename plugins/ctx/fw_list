@@ -7,7 +7,7 @@ source /root/variables
 command="$1"
 text="$2"
 
-firewall=$(uci show firewall |grep "@rule" | grep name |grep -oE "\[[[:digit:]]+\].name='([[:graph:]]|[[:blank:]])+'" | awk -F ".name=" '{gsub(/[\047]|\[|\]/,"");printf "[ {\"callback_data\": \"##CMD##|" $1 "\^" $2 "\" ,\"text\" : \"" $2 ;system("[ $(uci get firewall.@rule["$1"].enabled) == 1 ] && echo -en \" (Enabled)\" || echo -en \" (Disabled)\"") ; print "\"} ],"}')
+firewall=$(uci show firewall |grep "@rule" | grep name |grep -oE "\[[[:digit:]]+\].name='([[:graph:]]|[[:blank:]])+'" | awk -F ".name=" '{gsub(/[\047]|\[|\]/,"");printf "[ {\"callback_data\": \"##CMD##|" $1 "\^" $2 "\" ,\"text\" : \"" $2 ;system("[ \"$(uci get firewall.@rule["$1"].enabled &>/dev/null)\" == \"1\" ] && echo -en \" (Enabled)\" || echo -en \" (Disabled)\"") ; print "\"} ],"}')
 rules=${firewall:0:$((${#firewall}-1))}
 rls=${rules//##CMD##/$command}
 keyboard='{"inline_keyboard": ['$rls'] }'
