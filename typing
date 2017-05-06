@@ -1,0 +1,12 @@
+#!/bin/sh
+
+PATH='/usr/bin:/usr/sbin:/bin:/sbin'
+
+source /root/variables
+
+while [ true ] 
+do
+	curl -k -X POST $api/sendChatAction -d "chat_id=$my_chat_id" -d "action=typing" &> /tmp/telegram.log   
+	echo "Typing"
+	sleep 6
+done
