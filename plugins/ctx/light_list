@@ -1,0 +1,17 @@
+#!/bin/sh
+
+export PATH="/usr/bin:/usr/sbin:/bin:/sbin"
+
+source /root/variables
+
+lights=$(for i in $(avahi-browse -t -d local _light._tcp |grep -Eo "lgt[0-9]+") ;\
+	do \
+	content=$(avahi-resolve -n $i.local | awk 'system("curl -s "$2"/state")');\
+	name=$(jsonfilter -s "$content" -e $.name);\
+	state=$(jsonfilter -s "$content" -e $.state); \
+	echo -en "[{\"callback_data\": \"light_control|${i}.local^${state}\" , \"text\": \"${name} (${state})\"}]," ; done ) 
+
+rules=${lights:0:$((${#lights}-1))}
+keyboard='{"inline_keyboard": ['$rules']}'
+
+curl -k -s -X POST -H "Charset: UTF-8"  $api/sendMessage -d chat_id=$my_chat_id -d "reply_markup=${keyboard}" -d "text=Choose a light to switch:"

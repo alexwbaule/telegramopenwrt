@@ -4,6 +4,9 @@ source /root/variables
 
 export PATH='/usr/bin:/usr/sbin:/bin:/sbin'
 
+has_offer=0
+count=0
+
 logread -f |while read line; do
 	echo "${line}" | grep -q "ag71xx-mdio.0:00: Port"
 	if [ $? == 0 ]; then
@@ -16,8 +19,14 @@ logread -f |while read line; do
 		#echo $telegram >>/tmp/log/lanports.log
 		/root/telebot "$telegram"
 	fi
-	echo "${line}" | grep -q "DHCPACK"
+	echo "${line}" | grep -q "DHCPOFFER" 
 	if [ $? == 0 ]; then
+		has_offer=1
+		count=4
+	fi
+
+	echo "${line}" | grep -q "DHCPACK" 
+	if [ $? == 0 ] && [ $has_offer == 1 ]; then 
 		dados=$(echo "${line}" | grep -oE "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3} \w{2}:\w{2}:\w{2}:\w{2}:\w{2}:\w{2} \w+")
 		date=$(echo "${line}" | grep -oE "^[a-zA-Z]+[[:space:]]+[a-zA-z]+[[:space:]]+[0-9]+[[:space:]]+[0-9:]+ [0-9]+")
 		ip=$(echo "${dados}" | cut -d ' ' -f 1)
@@ -27,5 +36,11 @@ logread -f |while read line; do
 		telegram=$(echo "*Device:* ${name}"$'\n'"*Data:* ${date}"$'\n'"*IP:* ${ip}"$'\n'"*MACADDR:* ${macaddr}")
 		#echo $telegram >>/tmp/log/lanports.log
 		/root/telebot "$telegram"
+		has_offer=0
+	fi
+	if [ $count == 0 ]; then
+		has_offer=0
+	else
+		count=$((count-1))
 	fi
 done&

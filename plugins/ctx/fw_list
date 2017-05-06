@@ -12,5 +12,4 @@ rules=${firewall:0:$((${#firewall}-1))}
 rls=${rules//##CMD##/$command}
 keyboard='{"inline_keyboard": ['$rls'] }'
 
-
 curl -k -s -X POST -H "Charset: UTF-8"  $api/sendMessage -d chat_id=$my_chat_id -d "reply_markup=${keyboard}" -d "text=${text}"

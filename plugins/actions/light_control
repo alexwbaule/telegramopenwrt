@@ -1,0 +1,21 @@
+#!/bin/sh
+
+NAME="$1"
+STATE="$2" 
+
+if [ "$NAME" == "" ] || [ "$STATE" == "" ]; then
+	echo "1|Light Error!!"
+	return 1
+else
+	ipaddr=$(avahi-resolve -n ${NAME} | awk '{printf $2}')
+	if [ "${STATE}" == "off" ];then
+		curl -s "$ipaddr/light/on" &>/dev/null
+	elif [ "${STATE}" == "on" ]; then
+		curl -s "$ipaddr/light/off" &>/dev/null
+	fi
+	light_is=$(curl -s "$ipaddr/state" 2>/dev/null)
+	state=$(jsonfilter -s "$light_is" -e $.state)
+	name=$(jsonfilter -s "$light_is" -e $.name)
+	echo "1|Light $name is $state."
+	exit 0
+fi

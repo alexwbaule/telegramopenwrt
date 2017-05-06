@@ -5,14 +5,14 @@ START=95
 STOP=15
 
 USE_PROCD=1
-PROG=/root/lanports
+PROG=/root/hosts_scan
 
 start_service () {
 	service_start ${PROG}
 }
 
 stop_service() {
-	kill $(pgrep -f lanports)
+	kill $(pgrep -f hosts_scan)
 }
 
 restart(){      
