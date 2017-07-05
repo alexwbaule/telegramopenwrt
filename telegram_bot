@@ -39,7 +39,7 @@ do
 			else
 				/root/typing > /tmp/typing.log &
 				#curl -k -X POST $api/sendChatAction -d "chat_id=$my_chat_id" -d "action=typing" &> /tmp/telegram.log
-				if [ "$is_a_cmd" ==  "bot_command" ]; then
+				if [ $(echo "$is_a_cmd" | grep "bot_command" -q; echo $?) == 0 ]; then
 					cmd=$(echo $command |  awk '{print $1}')
 					prms=$(echo $command | awk '{$1=""; print $0}')
 					parms=${prms//[\"\&\;\\\>\<\|]/}			
