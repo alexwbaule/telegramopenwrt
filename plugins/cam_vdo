@@ -10,8 +10,8 @@ curl -s -k -H "Authorization:Basic ${header_auth}" "http://${ipaddr}/videostream
 
 curl -k -X POST $api/sendChatAction -d "chat_id=$my_chat_id" -d "action=record_video" &> /tmp/telegram.log
 
-DATE=$(cat /tmp/header |grep Date | awk -F ": " '{printf $2}')
-NEW_DATE=$(date "+%d/%m/%Y %T %Z" -D %s -d $(($(date -u +%s -D "%a, %e %b %Y %T %Z" -d "${DATE}"))))
+DATE=$(cat /tmp/header |grep Date | sed -e 's/Date: //')
+NEW_DATE=$(date "+%d/%m/%Y %T %Z" -d "@$(($(date -u +%s -D "%a, %e %b %Y %T" -d "${DATE}")))")
 
 curl -k -X POST $api/sendVideo -H "Content-Type: multipart/form-data" -F "chat_id=$my_chat_id" -F "video=@/tmp/movie.asf" -F "reply_to_message_id=$id" -F "caption=Date: $NEW_DATE" &> /tmp/telegram_photo.log
 
