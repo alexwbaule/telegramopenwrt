@@ -1,0 +1,68 @@
+#!/bin/sh /etc/rc.common
+
+START=95
+STOP=15
+
+PROXYIP=192.168.250.2
+NETWORK=192.168.250.0/24
+CLIENTIFACE=br-lan
+FWMARK=2
+
+HTTP=$(uci get proxy.config.HTTP | awk '{printf $0}')
+HTTPS=$(uci get proxy.config.HTTPS | awk '{printf $0}')
+EXCEPTIONS=$(uci get proxy.config.exceptions | awk '{printf $0}')
+
+start() {
+	if [ "$HTTP" == "true" ]; then
+		iptables -t mangle -A PREROUTING -i $CLIENTIFACE ! -d $NETWORK -p tcp --dport 80 -j MARK --set-mark $FWMARK &>/dev/null
+		iptables -t mangle -I PREROUTING -p tcp --dport 80 -s $PROXYIP -j ACCEPT &>/dev/null
+	fi
+	if [ "$HTTPS" == "true" ]; then
+		iptables -t mangle -A PREROUTING -i $CLIENTIFACE ! -d $NETWORK -p tcp --dport 443 -j MARK --set-mark $FWMARK &>/dev/null
+		iptables -t mangle -I PREROUTING -p tcp --dport 443 -s $PROXYIP -j ACCEPT &>/dev/null
+	fi
+	if [[ "$HTTP" == "true" || "$HTTPS" == "true" ]];then
+		HAS_PROXY=$(cat /etc/iproute2/rt_tables &>/dev/null| grep -c proxy)
+		if [ $HAS_PROXY == 0 ]; then
+			echo "201   proxy" >> /etc/iproute2/rt_tables
+		fi
+		# permit Squid box out to the Internet
+		for except in ${EXCEPTIONS}
+		do
+			if [ "$HTTP" == "true" ]; then
+				iptables -t mangle -I PREROUTING -p tcp --dport 80 -s $except -j ACCEPT &>/dev/null
+			fi
+			if [ "$HTTPS" == "true" ]; then
+				iptables -t mangle -I PREROUTING -p tcp --dport 443 -s $except -j ACCEPT &>/dev/null
+			fi
+		done
+		iptables -t mangle -A PREROUTING -m mark --mark $FWMARK -j ACCEPT &>/dev/null
+		iptables -t filter -A FORWARD -i $CLIENTIFACE -o $CLIENTIFACE -p tcp --dport 80 -j ACCEPT &>/dev/null
+		iptables -t filter -A FORWARD -i $CLIENTIFACE -o $CLIENTIFACE -p tcp --dport 443 -j ACCEPT &>/dev/null
+		ip rule add fwmark 2 table proxy &>/dev/null
+		ip route add default via ${PROXYIP} table proxy &>/dev/null
+	fi
+}
+
+stop() {
+	iptables -t mangle -D PREROUTING -i $CLIENTIFACE ! -d $NETWORK -p tcp --dport 80 -j MARK --set-mark $FWMARK &>/dev/null
+	iptables -t mangle -D PREROUTING -p tcp --dport 80 -s $PROXYIP -j ACCEPT &>/dev/null
+	iptables -t mangle -D PREROUTING -i $CLIENTIFACE ! -d $NETWORK -p tcp --dport 443 -j MARK --set-mark $FWMARK &>/dev/null
+	iptables -t mangle -D PREROUTING -p tcp --dport 443 -s $PROXYIP -j ACCEPT &>/dev/null
+	for except in ${EXCEPTIONS}
+	do
+		iptables -t mangle -D PREROUTING -p tcp --dport 80 -s $except -j ACCEPT &>/dev/null
+		iptables -t mangle -D PREROUTING -p tcp --dport 443 -s $except -j ACCEPT &>/dev/null
+	done
+	iptables -t mangle -D PREROUTING -m mark --mark $FWMARK -j ACCEPT &>/dev/null
+	iptables -t filter -D FORWARD -i $CLIENTIFACE -o $CLIENTIFACE -p tcp --dport 80 -j ACCEPT &>/dev/null
+	iptables -t filter -D FORWARD -i $CLIENTIFACE -o $CLIENTIFACE -p tcp --dport 443 -j ACCEPT &>/dev/null
+	ip rule del fwmark 2 table proxy &>/dev/null
+	ip route del default via ${PROXYIP} table proxy &>/dev/null
+}
+
+restart(){
+        stop
+        sleep 1
+        start
+}

@@ -1,4 +1,4 @@
 #!/bin/sh
 
 
-./ctx/fw_list "fw_delete" "Choose a rule to delete:"
+./ctx/fw_list "fw_delete" "Choose a rule to delete:" >/dev/null

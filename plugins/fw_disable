@@ -1,4 +1,4 @@
 #!/bin/sh
 
 
-./ctx/fw_list "fw_disable" "Choose a rule to disable:"
+./ctx/fw_list "fw_disable" "Choose a rule to disable:" >/dev/null

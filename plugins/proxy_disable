@@ -9,4 +9,4 @@ fi
 if [ "$HTTPS_ENABLE"  == "" ] ; then
 	HTTPS_ENABLE="--"
 fi
-./ctx/proxy "proxy_disable" "Disable" "HTTP\n\tConfig enabled: ${HTTP}\n\tEnabled Iptables Port: ${HTTP_ENABLE}\nHTTPS\n\tConfig enabled: ${HTTPS}\n\tEnabled Iptables Port: ${HTTPS_ENABLE}\n\n"
+./ctx/proxy "proxy_disable" "Disable" "HTTP\n\tConfig enabled: ${HTTP}\n\tEnabled Iptables Port: ${HTTP_ENABLE}\nHTTPS\n\tConfig enabled: ${HTTPS}\n\tEnabled Iptables Port: ${HTTPS_ENABLE}\n\n" >/dev/null

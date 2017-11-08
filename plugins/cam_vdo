@@ -6,13 +6,13 @@ source /root/variables
 
 curl -k -X POST $api/sendChatAction -d "chat_id=$my_chat_id" -d "action=record_video" &> /tmp/telegram.log
 
-curl -s -k -H "Authorization:Basic ${header_auth}" "http://${ipaddr}/videostream.asf?user=${user}&pwd=${passwd}" -m 25 -o /tmp/movie.asf -D /tmp/header
+curl -s -k -H "Authorization:Basic ${header_auth}" "http://${ipaddr}/videostream.asf?user=${user}&pwd=${passwd}" -m 25 -o /tmp/movie.asf -D /tmp/header 
 
 curl -k -X POST $api/sendChatAction -d "chat_id=$my_chat_id" -d "action=record_video" &> /tmp/telegram.log
 
 DATE=$(cat /tmp/header |grep Date | sed -e 's/Date: //')
 NEW_DATE=$(date "+%d/%m/%Y %T %Z" -d "@$(($(date -u +%s -D "%a, %e %b %Y %T" -d "${DATE}")))")
 
-curl -k -X POST $api/sendVideo -H "Content-Type: multipart/form-data" -F "chat_id=$my_chat_id" -F "video=@/tmp/movie.asf" -F "reply_to_message_id=$id" -F "caption=Date: $NEW_DATE" &> /tmp/telegram_photo.log
+curl -k -X POST $api/sendVideo -H "Content-Type: multipart/form-data" -F "chat_id=$my_chat_id" -F "video=@/tmp/movie.mp4" -F "reply_to_message_id=$id" -F "caption=Date: $NEW_DATE" &> /tmp/telegram_photo.log
 
 rm -f /tmp/movie.asf
