@@ -1,5 +1,5 @@
 #!/bin/sh
-
+{
 PATH='/usr/bin:/usr/sbin:/bin:/sbin'
 
 source /root/variables
@@ -34,12 +34,12 @@ do
 			origin_ans=$(jsonfilter -s "$updates"  -e "$.result[@.update_id=$update_id].callback_query.message.chat.id")
 
 			if [[ "$origin" != "$my_chat_id" && "$origin_ans" != "$my_chat_id" ]];then
-				curl -k -s -X POST $api/sendMessage -d reply_to_message_id=$msg_id -d chat_id=$origin -d parse_mode=Markdown --data-urlencode text="This is a Private bot." &> /tmp/telegram.log
-				curl -k -s -X POST $api/leaveChat -d chat_id=$origin  &> /tmp/telegram.log
+				curl -k -s -X POST $api/sendMessage -d reply_to_message_id=$msg_id -d chat_id=$origin -d parse_mode=Markdown --data-urlencode text="This is a Private bot." 
+				curl -k -s -X POST $api/leaveChat -d chat_id=$origin  
 			else
 
 				/root/typing > /tmp/typing.log &
-				#curl -k -X POST $api/sendChatAction -d "chat_id=$my_chat_id" -d "action=typing" &> /tmp/telegram.log
+				#curl -k -X POST $api/sendChatAction -d "chat_id=$my_chat_id" -d "action=typing" 
 				if [ $(echo "$is_a_cmd" | grep "bot_command" -q; echo $?) == 0 ]; then 
 					cmd=$(echo $command |  awk '{print $1}')
 					prms=$(echo $command | awk '{$1=""; print $0}')
@@ -47,10 +47,10 @@ do
 					if [ -f "${plugins}$cmd" ]; then
 						cd ${plugins}
 						result=$("./$cmd" $parms)
-						curl -k -s -X POST $api/sendMessage -d chat_id=$origin -d parse_mode=Markdown --data-urlencode text="$result" &> /tmp/telegram.log
+						curl -k -s -X POST $api/sendMessage -d chat_id=$origin -d parse_mode=Markdown --data-urlencode text="$result" 
 						cd  ${path}
 					else
-						curl -k -s -X POST $api/sendMessage -d chat_id=$origin -d parse_mode=Markdown --data-urlencode text="Command *${cmd}* not found!" &> /tmp/telegram.log
+						curl -k -s -X POST $api/sendMessage -d chat_id=$origin -d parse_mode=Markdown --data-urlencode text="Command *${cmd}* not found!" 
 					fi
 				elif [ "$query_ans" != "" ]; then
 					msg_id_ans=$(jsonfilter -s "$updates"  -e "$.result[@.update_id=$update_id].callback_query.message.message_id")
@@ -63,16 +63,16 @@ do
 						result=$(IFS="\^" ; "./$fcmd" ${parameter})
 						remove=$(echo $result | awk -F "\|" '{print $1}')
 						msg=$(echo $result | awk -F "\|" '{print $2}')
-						curl -k -s -X POST $api/answerCallbackQuery -d chat_id=$origin_ans -d callback_query_id=$query_ans -d text="${msg}" &> /tmp/telegram.log
+						curl -k -s -X POST $api/answerCallbackQuery -d chat_id=$origin_ans -d callback_query_id=$query_ans -d text="${msg}" 
 						if [ "$remove" == "1" ]; then
-							curl -k -s -X POST $api/editMessageText -d chat_id=$origin_ans -d message_id=$msg_id_ans -d text="${msg}" &> /tmp/telegram.log
+							curl -k -s -X POST $api/editMessageText -d chat_id=$origin_ans -d message_id=$msg_id_ans -d text="${msg}" 
 						fi
 						cd  ${path}
 					else
-						curl -k -s -X POST $api/sendMessage -d chat_id=$origin_ans -d parse_mode=Markdown --data-urlencode text="Command Action *${fcmd}* not found!" &> /tmp/telegram.log
+						curl -k -s -X POST $api/sendMessage -d chat_id=$origin_ans -d parse_mode=Markdown --data-urlencode text="Command Action *${fcmd}* not found!" 
 					fi
 				else
-					curl -k -s -X POST $api/sendMessage -d reply_to_message_id=$msg_id -d chat_id=$origin -d parse_mode=Markdown --data-urlencode text="${command_not_found}" &> /tmp/telegram.log
+					curl -k -s -X POST $api/sendMessage -d reply_to_message_id=$msg_id -d chat_id=$origin -d parse_mode=Markdown --data-urlencode text="${command_not_found}" 
 				fi
 				kill $(ps | grep -v grep | grep typing | awk '{print $1}')
 			fi
@@ -84,3 +84,4 @@ do
 	fi
 	sleep 1
 done&
+} | (logger -t "telegram_bot" -p daemon.info)&
