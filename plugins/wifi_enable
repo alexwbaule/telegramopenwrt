@@ -1,0 +1,3 @@
+#!/bin/sh
+
+./ctx/wifi_list "wifi_enable" "Choose a Wireless radio to enable:" >/dev/null

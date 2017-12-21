@@ -1,0 +1,3 @@
+#!/bin/sh
+
+./ctx/fwr_list "fwr_enable" "Choose a rule to enable:" >/dev/null

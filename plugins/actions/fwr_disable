@@ -1,0 +1,15 @@
+#!/bin/sh
+
+RULE_NUM="$1"
+RULE_NAME="$2"
+
+if [ "$RULE_NUM" == "" ]; then
+	echo "1|Rule Num Error!!"
+	return 1
+else
+	uci set firewall.@redirect[$RULE_NUM].enabled='0'
+	uci commit firewall &> /dev/null
+	/etc/init.d/firewall restart &> /dev/null
+	echo "1|rule $RULE_NAME is disabled."
+	exit 0
+fi

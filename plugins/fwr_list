@@ -1,0 +1,21 @@
+#!/bin/sh
+
+old=$IFS
+IFS=$'\n'
+TOTAL=0
+
+echo "*Rules*"
+
+for rule in $(uci show firewall  | grep "@redirect" )
+do
+	line=$(echo ${rule} | awk -F "." '{ if (NF > 3) print $3"."$4"."$5"."$6; else print $3 }' )
+	id=$(echo ${rule} | grep ".name" | grep -oE "\[[[:digit:]]+\]" | awk '{gsub("\\[|]","");printf $1}')
+	if [ "$id" != "" ]; then
+		echo "id: $id"
+	fi
+	new=${line//\'/}
+	new2=${new//_/\\_}
+	new3=${new2//=/: }
+	echo ${new3//\*/all}
+done
+IFS=$old

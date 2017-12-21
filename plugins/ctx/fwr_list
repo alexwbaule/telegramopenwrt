@@ -1,0 +1,15 @@
+#!/bin/sh
+
+export PATH="/usr/bin:/usr/sbin:/bin:/sbin"
+
+source /root/variables
+
+command="$1"
+text="$2"
+
+firewall=$(uci show firewall |grep "@redirect" | grep name |grep -oE "\[[[:digit:]]+\].name='([[:graph:]]|[[:blank:]])+'" | awk -F ".name=" '{gsub(/[\047]|\[|\]/,"");printf "[ {\"callback_data\": \"##CMD##|" $1 "\^" $2 "\" ,\"text\" : \"" $2 ;system("[ \"$(uci -q get firewall.@redirect["$1"].enabled)\" == \"1\" ] && echo -en \" (Enabled)\" || echo -en \" (Disabled)\"") ; print "\"} ],"}')
+rules=${firewall:0:$((${#firewall}-1))}
+rls=${rules//##CMD##/$command}
+keyboard='{"inline_keyboard": ['$rls'] }'
+
+curl -k -s -X POST -H "Charset: UTF-8"  $api/sendMessage -d chat_id=$my_chat_id -d "reply_markup=${keyboard}" -d "text=${text}"

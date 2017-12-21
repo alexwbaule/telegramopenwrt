@@ -2,9 +2,11 @@
 {
 PATH='/usr/bin:/usr/sbin:/bin:/sbin'
 
+echo "starting" 
+
 source /root/variables
 
-touch  /tmp/bot_vars.sh
+touch  /root/bot_vars
 path="/root"
 plugins="${path}/plugins"
 actions="${plugins}/actions"
@@ -16,7 +18,7 @@ Send [/start](/start) to get my commands list."
 
 while [ true ]
 do 
-	source /tmp/bot_vars.sh
+	source /root/bot_vars
 	offset=$(($offset+1))
 	status=0
 	updates=$(curl -s -k -X GET $api/getUpdates?offset=$offset)
@@ -46,8 +48,9 @@ do
 					parms=${prms//[\"\&\;\\\>\<\|]/}			
 					if [ -f "${plugins}$cmd" ]; then
 						cd ${plugins}
+						(echo "Call $cmd" | logger -t "telegram_bot" -p daemon.info)&
 						result=$("./$cmd" $parms)
-						curl -k -s -X POST $api/sendMessage -d chat_id=$origin -d parse_mode=Markdown --data-urlencode text="$result" 
+						curl -k -s -X POST $api/sendMessage -d chat_id=$origin -d parse_mode=Markdown --data-urlencode text="$result" >>/tmp/telegram.log
 						cd  ${path}
 					else
 						curl -k -s -X POST $api/sendMessage -d chat_id=$origin -d parse_mode=Markdown --data-urlencode text="Command *${cmd}* not found!" 
@@ -60,6 +63,7 @@ do
 					parameter=${fprms//[\&\;\\\>\<\|]/}
 					if [ -f "${actions}/$fcmd" ]; then
 						cd ${actions}
+						(echo "Call $fcmd" | logger -t "telegram_bot" -p daemon.info)&
 						result=$(IFS="\^" ; "./$fcmd" ${parameter})
 						remove=$(echo $result | awk -F "\|" '{print $1}')
 						msg=$(echo $result | awk -F "\|" '{print $2}')
@@ -79,7 +83,7 @@ do
 		done
 	
 		if [ -n "$update_ids" ]; then
-			echo "offset=$update_id" > /tmp/bot_vars.sh
+			echo "offset=$update_id" > /root/bot_vars
 	  	fi
 	fi
 	sleep 1

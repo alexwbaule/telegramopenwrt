@@ -1,0 +1,3 @@
+#!/bin/sh
+
+sleep 15 && echo "rebooting" | logger -t "telegram_bot" -p daemon.info && /sbin/reboot
