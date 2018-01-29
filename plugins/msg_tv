@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/ash
 
 source /root/variables
 
