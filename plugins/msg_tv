@@ -5,7 +5,7 @@ source /root/variables
 DATE=$(/bin/date +"%Y-%m-%d" | /usr/bin/awk '{printf $1}')
 TIME=$(/bin/date +"%T" | /usr/bin/awk '{printf $1}')
 
-MYMSG=$1
+MYMSG="$*"
 
 MSG="<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\" >
