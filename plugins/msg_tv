@@ -36,4 +36,4 @@ MSG="<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 
 echo "Sending ${MYMSG} Message to TV ${TVIP} ..."
 
-echo ${MSG} | curl -v -X POST -H 'Content-Type: text/xml' -H 'SOAPACTION: "urn:samsung.com:service:MessageBoxService:1#AddMessage"' -c 'text/xml' http://${TVIP}:52235/PMR/control/MessageBoxService -d@-
+echo ${MSG} | curl -s -X POST -H 'Content-Type: text/xml' -H 'SOAPACTION: "urn:samsung.com:service:MessageBoxService:1#AddMessage"' -c 'text/xml' http://${TVIP}:52235/PMR/control/MessageBoxService -d@- >/dev/null
