@@ -6,34 +6,37 @@ DATE=$(/bin/date +"%Y-%m-%d" | /usr/bin/awk '{printf $1}')
 TIME=$(/bin/date +"%T" | /usr/bin/awk '{printf $1}')
 
 MYMSG="$*"
+if [ $(ping ${TVIP} -c 1 > /dev/null ;echo -n $?) == 1 ]; then
+	echo "Television is Offline."
+else
+	MSG="<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+	<s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\" >
+		<s:Body>
+			<u:AddMessage xmlns:u=\"urn:samsung.com:service:MessageBoxService:1\">
+				<MessageID>1</MessageID>
+				<MessageType>text/xml</MessageType>
+					<Message>
+					&lt;Category&gt;SMS&lt;/Category&gt;
+					&lt;DisplayType&gt;Maximum&lt;/DisplayType&gt;
+					&lt;ReceiveTime&gt;
+					&lt;Date&gt;${DATE}&lt;/Date&gt;
+					&lt;Time&gt;${TIME}&lt;/Time&gt;
+					&lt;/ReceiveTime&gt;
+					&lt;Receiver&gt;
+					&lt;Number&gt;${TV_R_NUM}&lt;/Number&gt;
+					&lt;Name&gt;${TV_R_NAME}&lt;/Name&gt;
+					&lt;/Receiver&gt;
+					&lt;Sender&gt;
+					&lt;Number&gt;${TV_S_NUM}&lt;/Number&gt;
+					&lt;Name&gt;${TV_S_NAME}&lt;/Name&gt;
+					&lt;/Sender&gt;
+					&lt;Body&gt;${MYMSG}&lt;/Body&gt;
+					</Message>
+			</u:AddMessage>
+		</s:Body>
+	</s:Envelope>"
 
-MSG="<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-<s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\" >
-	<s:Body>
-		<u:AddMessage xmlns:u=\"urn:samsung.com:service:MessageBoxService:1\">
-			<MessageID>1</MessageID>
-			<MessageType>text/xml</MessageType>
-				<Message>
-				&lt;Category&gt;SMS&lt;/Category&gt;
-				&lt;DisplayType&gt;Maximum&lt;/DisplayType&gt;
-				&lt;ReceiveTime&gt;
-				&lt;Date&gt;${DATE}&lt;/Date&gt;
-				&lt;Time&gt;${TIME}&lt;/Time&gt;
-				&lt;/ReceiveTime&gt;
-				&lt;Receiver&gt;
-				&lt;Number&gt;${TV_R_NUM}&lt;/Number&gt;
-				&lt;Name&gt;${TV_R_NAME}&lt;/Name&gt;
-				&lt;/Receiver&gt;
-				&lt;Sender&gt;
-				&lt;Number&gt;${TV_S_NUM}&lt;/Number&gt;
-				&lt;Name&gt;${TV_S_NAME}&lt;/Name&gt;
-				&lt;/Sender&gt;
-				&lt;Body&gt;${MYMSG}&lt;/Body&gt;
-				</Message>
-		</u:AddMessage>
-	</s:Body>
-</s:Envelope>"
+	echo "Sending ${MYMSG} Message to TV ${TVIP} ..."
 
-echo "Sending ${MYMSG} Message to TV ${TVIP} ..."
-
-echo ${MSG} | curl -s -X POST -H 'Content-Type: text/xml' -H 'SOAPACTION: "urn:samsung.com:service:MessageBoxService:1#AddMessage"' -c 'text/xml' http://${TVIP}:52235/PMR/control/MessageBoxService -d@- >/dev/null
+	echo ${MSG} | curl -s -X POST -H 'Content-Type: text/xml' -H 'SOAPACTION: "urn:samsung.com:service:MessageBoxService:1#AddMessage"' -c 'text/xml' http://${TVIP}:52235/PMR/control/MessageBoxService -d@- >/dev/null
+fi

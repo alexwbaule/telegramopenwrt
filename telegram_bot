@@ -42,7 +42,7 @@ do
 
 				/root/typing > /tmp/typing.log &
 				#curl -k -X POST $api/sendChatAction -d "chat_id=$my_chat_id" -d "action=typing" 
-				if [ $(echo "$is_a_cmd" | grep "bot_command" -q; echo $?) == 0 ]; then 
+				if [ $(echo "$is_a_cmd" | grep "bot_command" -q; echo -n $?) == 0 ]; then 
 					cmd=$(echo $command |  awk '{print $1}')
 					prms=$(echo $command | awk '{$1=""; print $0}')
 					parms=${prms//[\"\&\;\\\>\<\|]/}			
