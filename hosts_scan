@@ -15,7 +15,7 @@ do
 		fi
 		if [ "${LAST}" != "${RESULT}" ];then
 			name=$(cat /tmp/dhcp.leases | grep " ${IP} " | awk '{print $4}')
-			[ "${name}" == "" ] && name=$(cat /tmp/hosts/dhcp | grep "^${IP}" | awk '{print $2}')
+			[ "${name}" == "" ] && name=$(cat /tmp/hosts/dhcp.cfg01411c | grep "^${IP}" | awk '{print $2}')
 			date=$(date "+%d/%m/%Y %H:%M")
 			telegram=$(echo "*Device:* ${name}"$'\n'"*Data:* ${date}"$'\n'"*IP:* ${IP}"$'\n'"*State:* ${RESULT}")
 			/root/telebot "$telegram"		

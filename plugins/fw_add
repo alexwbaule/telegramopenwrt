@@ -17,7 +17,6 @@ if [ "$NAME" != "" ]; then
 			uci set firewall.@rule[-1].start_time='23:00'
 			uci set firewall.@rule[-1].stop_time='08:00'
 			uci set firewall.@rule[-1].weekdays='mon tue wed thu fri sat sun'
-			uci set firewall.@rule[-1].extra='--kerneltz'
 		else
 			uci set firewall.@rule[-1].name="Bloqueio Telegram ${NAME}"
 		fi
@@ -32,5 +31,5 @@ if [ "$NAME" != "" ]; then
 		exit 0
 	fi
 fi
-echo "Error creating new rule !"
+echo "Error creating new rule ${NAME} !"
 exit 1

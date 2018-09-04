@@ -1,10 +1,10 @@
 #!/bin/sh /etc/rc.common
+# Copyright (C) 2006-2011 OpenWrt.org
 
 START=95
 STOP=15
 
 PROXYIP=192.168.250.2
-NETWORK=192.168.250.0/24
 CLIENTIFACE=br-lan
 FWMARK=2
 
@@ -14,11 +14,11 @@ EXCEPTIONS=$(uci get proxy.config.exceptions | awk '{printf $0}')
 
 start() {
 	if [ "$HTTP" == "true" ]; then
-		iptables -t mangle -A PREROUTING -i $CLIENTIFACE ! -d $NETWORK -p tcp --dport 80 -j MARK --set-mark $FWMARK &>/dev/null
+		iptables -t mangle -A PREROUTING -i $CLIENTIFACE ! -d 192.168.250.0/24 -p tcp --dport 80 -j MARK --set-mark $FWMARK &>/dev/null
 		iptables -t mangle -I PREROUTING -p tcp --dport 80 -s $PROXYIP -j ACCEPT &>/dev/null
 	fi
 	if [ "$HTTPS" == "true" ]; then
-		iptables -t mangle -A PREROUTING -i $CLIENTIFACE ! -d $NETWORK -p tcp --dport 443 -j MARK --set-mark $FWMARK &>/dev/null
+		iptables -t mangle -A PREROUTING -i $CLIENTIFACE ! -d 192.168.250.0/24 -p tcp --dport 443 -j MARK --set-mark $FWMARK &>/dev/null
 		iptables -t mangle -I PREROUTING -p tcp --dport 443 -s $PROXYIP -j ACCEPT &>/dev/null
 	fi
 	if [[ "$HTTP" == "true" || "$HTTPS" == "true" ]];then
@@ -45,9 +45,9 @@ start() {
 }
 
 stop() {
-	iptables -t mangle -D PREROUTING -i $CLIENTIFACE ! -d $NETWORK -p tcp --dport 80 -j MARK --set-mark $FWMARK &>/dev/null
+	iptables -t mangle -D PREROUTING -i $CLIENTIFACE ! -d 192.168.250.0/24 -p tcp --dport 80 -j MARK --set-mark $FWMARK &>/dev/null
 	iptables -t mangle -D PREROUTING -p tcp --dport 80 -s $PROXYIP -j ACCEPT &>/dev/null
-	iptables -t mangle -D PREROUTING -i $CLIENTIFACE ! -d $NETWORK -p tcp --dport 443 -j MARK --set-mark $FWMARK &>/dev/null
+	iptables -t mangle -D PREROUTING -i $CLIENTIFACE ! -d 192.168.250.0/24 -p tcp --dport 443 -j MARK --set-mark $FWMARK &>/dev/null
 	iptables -t mangle -D PREROUTING -p tcp --dport 443 -s $PROXYIP -j ACCEPT &>/dev/null
 	for except in ${EXCEPTIONS}
 	do

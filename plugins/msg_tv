@@ -6,7 +6,8 @@ DATE=$(/bin/date +"%Y-%m-%d" | /usr/bin/awk '{printf $1}')
 TIME=$(/bin/date +"%T" | /usr/bin/awk '{printf $1}')
 
 MYMSG="$*"
-if [ $(ping ${TVIP} -c 1 > /dev/null ;echo -n $?) == 1 ]; then
+
+if [ $(ping ${TVIP} -c 1 >/dev/null; echo -n $?) == 1 ];then
 	echo "Television is Offline."
 else
 	MSG="<?xml version=\"1.0\" encoding=\"UTF-8\"?>
@@ -37,6 +38,5 @@ else
 	</s:Envelope>"
 
 	echo "Sending ${MYMSG} Message to TV ${TVIP} ..."
-
 	echo ${MSG} | curl -s -X POST -H 'Content-Type: text/xml' -H 'SOAPACTION: "urn:samsung.com:service:MessageBoxService:1#AddMessage"' -c 'text/xml' http://${TVIP}:52235/PMR/control/MessageBoxService -d@- >/dev/null
 fi

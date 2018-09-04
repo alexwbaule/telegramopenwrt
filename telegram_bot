@@ -15,6 +15,7 @@ I only recognize *commands*.
 Commands are words beginning with a slash.
 Try it !
 Send [/start](/start) to get my commands list."
+starting=1
 
 while [ true ]
 do 
@@ -45,10 +46,13 @@ do
 				if [ $(echo "$is_a_cmd" | grep "bot_command" -q; echo -n $?) == 0 ]; then 
 					cmd=$(echo $command |  awk '{print $1}')
 					prms=$(echo $command | awk '{$1=""; print $0}')
-					parms=${prms//[\"\&\;\\\>\<\|]/}			
+					parms=${prms//[\"\&\;\\\>\<\|]/}
 					if [ -f "${plugins}$cmd" ]; then
+						if [[ "$cmd" == "reboot" && $starting == 1 ]]; then
+							next;
+						fi
 						cd ${plugins}
-						(echo "Call $cmd" | logger -t "telegram_bot" -p daemon.info)&
+						(echo "Call $cmd [$parms]" | logger -t "telegram_bot" -p daemon.info)&
 						result=$("./$cmd" $parms)
 						curl -k -s -X POST $api/sendMessage -d chat_id=$origin -d parse_mode=Markdown --data-urlencode text="$result" >>/tmp/telegram.log
 						cd  ${path}
@@ -86,6 +90,7 @@ do
 			echo "offset=$update_id" > /root/bot_vars
 	  	fi
 	fi
+	starting=0
 	sleep 1
 done&
 } | (logger -t "telegram_bot" -p daemon.info)&
