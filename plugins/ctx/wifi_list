@@ -7,9 +7,11 @@ source /root/variables
 command="$1"
 text="$2"
 
-wireless=$(uci show wireless |grep "@wifi-iface" | grep ssid |grep -oE "\[[[:digit:]]+\].ssid='([[:graph:]]|[[:blank:]])+'" | awk -F ".ssid=" '{gsub(/[\047]|\[|\]/,"");printf "[ {\"callback_data\": \"##CMD##|" $1 "\^" $2 "\" ,\"text\" : \"" $2 ;system("[ \"$(uci -q get wireless.@wifi-iface["$1"].disabled)\" == \"0\" ] && echo -en \" (Enabled)\" || echo -en \" (Disabled)\"") ; print "\"} ],"}')
+wireless=$(uci show wireless |grep "default_radio" | grep ssid |grep -oE "[[:digit:]]+.ssid='([[:graph:]]|[[:blank:]])+'" | awk -F ".ssid=" '{gsub(/[\047]|\[|\]/,"");printf "[ {\"callback_data\": \"##CMD##|" $1 "\^" $2 "\" ,\"text\" : \"" $2 ;system("[ \"$(uci -q get wireless.radio"$1".__toggle)\" == \"Enable\" ] && echo -en \" (Disabled)\" || echo -en \" (Enabled)\"") ; print "\"} ],"}')
 rules=${wireless:0:$((${#wireless}-1))}
 rls=${rules//##CMD##/$command}
 keyboard='{"inline_keyboard": ['$rls'] }'
 
-curl -k -s -X POST -H "Charset: UTF-8"  $api/sendMessage -d chat_id=$my_chat_id -d "reply_markup=${keyboard}" -d "text=${text}"
+echo "$keyboard"
+
+#curl -k -s -X POST -H "Charset: UTF-8"  $api/sendMessage -d chat_id=$my_chat_id -d "reply_markup=${keyboard}" -d "text=${text}"

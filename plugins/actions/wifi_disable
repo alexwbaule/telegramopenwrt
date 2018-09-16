@@ -7,7 +7,7 @@ if [ "$RULE_NUM" == "" ]; then
 	echo "1|Rule Num Error!!"
 	return 1
 else
-	uci set wireless.@wifi-iface[$RULE_NUM].disabled='1'
+	uci set wireless.radio$RULE_NUM.__toggle='Disable'
 	uci commit wireless &> /dev/null
 	/sbin/wifi &> /dev/null
 	echo "1|Radio $RULE_NAME is disabled."

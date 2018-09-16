@@ -54,7 +54,7 @@ do
 						cd ${plugins}
 						(echo "Call $cmd [$parms]" | logger -t "telegram_bot" -p daemon.info)&
 						result=$("./$cmd" $parms)
-						curl -k -s -X POST $api/sendMessage -d chat_id=$origin -d parse_mode=Markdown --data-urlencode text="$result" >>/tmp/telegram.log
+						/root/telegram_sender "$result"
 						cd  ${path}
 					else
 						curl -k -s -X POST $api/sendMessage -d chat_id=$origin -d parse_mode=Markdown --data-urlencode text="Command *${cmd}* not found!" 

@@ -1,0 +1,37 @@
+#!/bin/ash
+
+PATH='/usr/bin:/usr/sbin:/bin:/sbin'
+source /root/variables
+
+items=$1
+
+IFS=$'\n'
+
+count=0
+for item in $items
+do
+  send=0
+  count=$((count+${#item}+1))
+  if [ "$count" -eq "4096" ];then
+    send=1
+  elif [ "$count" -gt "4096" ];then
+    send=2
+  fi
+  if [ "$send" -ne "2" ]; then
+    full=${full}${item}$'\n'
+  fi
+
+  if [ "$send" -eq "1" ]; then
+    curl -k -s -X POST $api/sendMessage -d chat_id=$my_chat_id -d parse_mode=Markdown --data-urlencode text="$full" >>/tmp/telegram.log
+    full=""
+    count=0
+  elif [ "$send" -eq "2" ]; then
+    curl -k -s -X POST $api/sendMessage -d chat_id=$my_chat_id -d parse_mode=Markdown --data-urlencode text="$full" >>/tmp/telegram.log
+    full=${item}$'\n'
+    count=${#item}
+  fi
+done
+
+if [ $count -gt "0" ];then
+    curl -k -s -X POST $api/sendMessage -d chat_id=$my_chat_id -d parse_mode=Markdown --data-urlencode text="$full" >>/tmp/telegram.log
+fi
