@@ -7,7 +7,7 @@ source /root/variables
 command="$1"
 text="$2"
 
-wireless=$(uci show wireless |grep "default_radio" | grep ssid |grep -oE "[[:digit:]]+.ssid='([[:graph:]]|[[:blank:]])+'" | awk -F ".ssid=" '{gsub(/[\047]|\[|\]/,"");printf "[ {\"callback_data\": \"##CMD##|" $1 "\^" $2 "\" ,\"text\" : \"" $2 ;system("[ \"$(uci -q get wireless.radio"$1".__toggle)\" == \"Enable\" ] && echo -en \" (Disabled)\" || echo -en \" (Enabled)\"") ; print "\"} ],"}')
+wireless=$(uci show wireless |grep "default_radio" | grep ssid |grep -oE "[[:digit:]]+.ssid='([[:graph:]]|[[:blank:]])+'" | awk -F ".ssid=" '{gsub(/[\047]|\[|\]/,"");printf "[ {\"callback_data\": \"##CMD##|" $1 "\^" $2 "\" ,\"text\" : \"" $2 ;system("[ \"$(uci -q get wireless.radio"$1".__toggle)\" == \"Disable\" ] && echo -en \" (Disabled)\" || echo -en \" (Enabled)\"") ; print "\"} ],"}')
 rules=${wireless:0:$((${#wireless}-1))}
 rls=${rules//##CMD##/$command}
 keyboard='{"inline_keyboard": ['$rls'] }'
