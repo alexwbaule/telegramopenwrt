@@ -31,13 +31,18 @@ do
 		do
 			origin=$(jsonfilter -s "$updates"  -e "$.result[@.update_id=$update_id].message.chat.id")
 			msg_id=$(jsonfilter -s "$updates"  -e "$.result[@.update_id=$update_id].message.message_id")
+			username=$(jsonfilter -s "$updates"  -e "$.result[@.update_id=$update_id].message.chat.username")
+			name=$(jsonfilter -s "$updates"  -e "$.result[@.update_id=$update_id].message.chat.first_name")
+			lastname=$(jsonfilter -s "$updates"  -e "$.result[@.update_id=$update_id].message.chat.last_name")
 			command=$(jsonfilter -s "$updates" -e "$.result[@.update_id=$update_id].message.text")
 			is_a_cmd=$(jsonfilter -s "$updates" -e "$.result[@.update_id=$update_id].message.entities[*].type")
 			query_ans=$(jsonfilter -s "$updates" -e "$.result[@.update_id=$update_id].callback_query.id")
 			origin_ans=$(jsonfilter -s "$updates"  -e "$.result[@.update_id=$update_id].callback_query.message.chat.id")
 
 			if [[ "$origin" != "$my_chat_id" && "$origin_ans" != "$my_chat_id" ]];then
-				curl -k -s -X POST $api/sendMessage -d reply_to_message_id=$msg_id -d chat_id=$origin -d parse_mode=Markdown --data-urlencode text="This is a Private bot." 
+				echo "From: ${From}"$'\n'"To: ${To}"$'\n'"Subject: TelegramBOT"$'\n\n'"Someone with username ${username} (${name} ${lastname}) is trying to use your bot, sending the ${command}" | ssmtp "${Sender}"
+				curl -k -s -X POST $api/sendMessage -d reply_to_message_id=$msg_id -d chat_id=$origin -d parse_mode=Markdown --data-urlencode \
+				text="This is a Private bot. If you want to implement one for you, check this out https://github.com/alexwbaule/telegramopenwrt" 
 				curl -k -s -X POST $api/leaveChat -d chat_id=$origin  
 			else
 
