@@ -2,7 +2,7 @@
 
 mkdir /root/arps &>/dev/null
 
-while [ true ] 
+(while [ true ] 
 do
 
 	for IP in $(cat /proc/net/arp | grep "192.168.250" | awk '{print $1}')
@@ -23,4 +23,4 @@ do
 		echo -en "${RESULT}" > /root/arps/$IP
 	done 
 	sleep 300
-done&
+done)&

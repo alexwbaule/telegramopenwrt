@@ -4,19 +4,23 @@
 START=95
 STOP=15
 
-USE_PROCD=1
-PROG=/root/lanports
-
-start_service () {
-	service_start ${PROG}
+boot(){
+return 0
 }
 
-stop_service() {
-	kill $(pgrep -f lanports)
+start() {
+/root/lanports
+}
+
+stop() {
+pids=$(pgrep -f lanports | xargs echo)
+for i in $pids; do extra_pids="${extra_pids} $(pgrep -P $i | xargs echo)"; done;	
+kill $(echo "${extra_pids} ${pids}") 2> /dev/null
+return 0
 }
 
 restart(){      
-        stop_service    
-        sleep 1 
-        start_service   
+stop    
+sleep 1 
+start   
 } 
