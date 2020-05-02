@@ -4,7 +4,7 @@ export PATH="/usr/bin:/usr/sbin:/bin:/sbin"
 
 url=$(uci get telegramopenwrt.global.url)
 key=$(uci get telegramopenwrt.global.key)
-api="$api/$key"
+api="$url$key"
 my_chat_id=$(uci get telegramopenwrt.global.my_chat_id)
 
 command="$1"

@@ -4,7 +4,7 @@ id="$1"
 
 url=$(uci get telegramopenwrt.global.url)
 key=$(uci get telegramopenwrt.global.key)
-api="$api/$key"
+api="$url$key"
 my_chat_id=$(uci get telegramopenwrt.global.my_chat_id)
 
 curl -k -X POST $api/sendChatAction -d "chat_id=$my_chat_id" -d "action=record_video" &> /tmp/telegram.log
