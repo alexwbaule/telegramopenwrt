@@ -8,7 +8,7 @@ First of all,
 Make a bot for you !
 https://core.telegram.org/bots/api#authorizing-your-bot
 
-With the bot created, you need to replace "[PUT YOUR BOT KEY HERE]" in variables  file with your bot key.
+With the bot created, you need to replace "[PUT YOUR BOT KEY HERE]" in the telegramopenwrt config file with your bot key.
 
 Second, you need to send a initial message to your bot in Telegram App.
 After you send the message, in the OpenWRT run this:

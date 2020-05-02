@@ -2,7 +2,11 @@
 
 export PATH="/usr/bin:/usr/sbin:/bin:/sbin"
 
-source /root/variables
+url=$(uci get telegramopenwrt.global.url)
+key=$(uci get telegramopenwrt.global.key)
+api="$url$key"
+my_chat_id=$(uci get telegramopenwrt.global.my_chat_id)
+
 
 keyboard='{"inline_keyboard":
 [[ {"callback_data": "cam_mv|93","text": "\u2196\ufe0f" }, {"callback_data": "cam_mv|2","text": "\u2b06\ufe0f" }, {"callback_data": "cam_mv|92","text": "\u2197\ufe0f" } ],

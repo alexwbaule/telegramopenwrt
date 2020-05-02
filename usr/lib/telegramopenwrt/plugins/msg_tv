@@ -1,9 +1,5 @@
 #!/bin/ash
 
-source /root/variables
-
-
-
 tvip=$(uci get telegramopenwrt.television.ipaddr)
 sender_name=$(uci get telegramopenwrt.television.sender_name)
 sender_number=$(uci get telegramopenwrt.television.sender_number)
