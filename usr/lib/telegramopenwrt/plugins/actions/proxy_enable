@@ -9,12 +9,12 @@ if [ "$RULE_NUM" == "" ]; then
 fi
 
 if [ "$RULE_NUM" == "0" ]; then
-	uci set proxy.config.HTTP=true
+	uci set telegramopenwrt.proxy.config.http=true
 elif [ "$RULE_NUM" == "1" ]; then
-	uci set proxy.config.HTTPS=true
+	uci set telegramopenwrt.proxy.config.https=true
 elif [ "$RULE_NUM" == "2" ]; then
-	uci set proxy.config.HTTP=true
-	uci set proxy.config.HTTPS=true
+	uci set telegramopenwrt.proxy.config.http=true
+	uci set telegramopenwrt.proxy.config.https=true
 fi
 uci commit proxy &> /dev/null
 /etc/init.d/proxy start &> /dev/null
