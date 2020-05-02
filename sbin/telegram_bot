@@ -6,7 +6,7 @@ echo "starting"
 
 url=$(uci get telegramopenwrt.global.url)
 key=$(uci get telegramopenwrt.global.key)
-api="$api/$key"
+api="$url$key"
 my_chat_id=$(uci get telegramopenwrt.global.my_chat_id)
 from=$(uci get telegramopenwrt.smtp.from)
 to=$(uci get telegramopenwrt.smtp.to)
@@ -35,6 +35,7 @@ do
 	
 		for update_id in $update_ids
 		do
+			#this avoid reboot router after reboot
 			echo "offset=$update_id" > /var/run/bot_vars
 			origin=$(jsonfilter -s "$updates"  -e "$.result[@.update_id=$update_id].message.chat.id")
 			msg_id=$(jsonfilter -s "$updates"  -e "$.result[@.update_id=$update_id].message.message_id")
