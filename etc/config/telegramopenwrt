@@ -1,0 +1,25 @@
+config telegramopenwrt 'global'
+	option key '[PUT YOUR BOT KEY HERE]'
+	option url 'https://api.telegram.org/bot'
+	option my_chat_id '[PUT ID OF THE CHAT THAT YOU START WITH BOT]'
+
+config telegramopenwrt 'ipcam'
+	option header_auth '[HEADER AUTH]'
+	option ipaddr '[CAMERA IP OR HOSTNAME]'
+	option user '[CAMERA USER]'
+	option passwd '[CAMERA PASSWD]'
+
+config telegramopenwrt 'smtp'
+	option from '[MAIL FROM]'
+	option to '[MAIL TO]'
+
+config telegramopenwrt 'television'
+	option ipaddr '[TV IP]'
+	option sender_name '[Sender Name]'
+	option sender_number '[Sender Number]'
+	option receiver_name '[Receiver Name]'
+	option receiver_number '[Receiver Number]'
+
+config telegramopenwrt 'proxy'
+	option http false
+	option https false

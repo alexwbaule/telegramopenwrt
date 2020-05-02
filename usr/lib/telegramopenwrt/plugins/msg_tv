@@ -2,12 +2,20 @@
 
 source /root/variables
 
+
+
+tvip=$(uci get telegramopenwrt.television.ipaddr)
+sender_name=$(uci get telegramopenwrt.television.sender_name)
+sender_number=$(uci get telegramopenwrt.television.sender_number)
+receiver_name=$(uci get telegramopenwrt.television.receiver_name)
+receiver_number=$(uci get telegramopenwrt.television.receiver_number)
+
 DATE=$(/bin/date +"%Y-%m-%d" | /usr/bin/awk '{printf $1}')
 TIME=$(/bin/date +"%T" | /usr/bin/awk '{printf $1}')
 
 MYMSG="$*"
 
-if [ $(ping ${TVIP} -c 1 >/dev/null; echo -n $?) == 1 ];then
+if [ $(ping ${tvip} -c 1 >/dev/null; echo -n $?) == 1 ];then
 	echo "Television is Offline."
 else
 	MSG="<?xml version=\"1.0\" encoding=\"UTF-8\"?>
@@ -24,12 +32,12 @@ else
 					&lt;Time&gt;${TIME}&lt;/Time&gt;
 					&lt;/ReceiveTime&gt;
 					&lt;Receiver&gt;
-					&lt;Number&gt;${TV_R_NUM}&lt;/Number&gt;
-					&lt;Name&gt;${TV_R_NAME}&lt;/Name&gt;
+					&lt;Number&gt;${receiver_number}&lt;/Number&gt;
+					&lt;Name&gt;${receiver_name}&lt;/Name&gt;
 					&lt;/Receiver&gt;
 					&lt;Sender&gt;
-					&lt;Number&gt;${TV_S_NUM}&lt;/Number&gt;
-					&lt;Name&gt;${TV_S_NAME}&lt;/Name&gt;
+					&lt;Number&gt;${sender_number}&lt;/Number&gt;
+					&lt;Name&gt;${sender_name}&lt;/Name&gt;
 					&lt;/Sender&gt;
 					&lt;Body&gt;${MYMSG}&lt;/Body&gt;
 					</Message>
@@ -37,6 +45,6 @@ else
 		</s:Body>
 	</s:Envelope>"
 
-	echo "Sending ${MYMSG} Message to TV ${TVIP} ..."
-	echo ${MSG} | curl -s -X POST -H 'Content-Type: text/xml' -H 'SOAPACTION: "urn:samsung.com:service:MessageBoxService:1#AddMessage"' -c 'text/xml' http://${TVIP}:52235/PMR/control/MessageBoxService -d@- >/dev/null
+	echo "Sending ${MYMSG} Message to TV ${tvip} ..."
+	echo ${MSG} | curl -s -X POST -H 'Content-Type: text/xml' -H 'SOAPACTION: "urn:samsung.com:service:MessageBoxService:1#AddMessage"' -c 'text/xml' http://${tvip}:52235/PMR/control/MessageBoxService -d@- >/dev/null
 fi

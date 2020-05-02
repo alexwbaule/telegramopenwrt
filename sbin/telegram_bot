@@ -4,12 +4,18 @@ PATH='/usr/bin:/usr/sbin:/bin:/sbin'
 
 echo "starting" 
 
-source /root/variables
-
-touch  /root/bot_vars
-path="/root"
-plugins="${path}/plugins"
+url=$(uci get telegramopenwrt.global.url)
+key=$(uci get telegramopenwrt.global.key)
+api="$api/$key"
+my_chat_id=$(uci get telegramopenwrt.global.my_chat_id)
+from=$(uci get telegramopenwrt.smtp.from)
+to=$(uci get telegramopenwrt.smtp.to)
+path="/sbin"
+plugins="/usr/lib/telegramopenwrt/plugins"
 actions="${plugins}/actions"
+
+touch  /var/run/bot_vars
+
 command_not_found="Sorry,
 I only recognize *commands*.
 Commands are words beginning with a slash.
@@ -19,9 +25,9 @@ starting=1
 
 while [ true ]
 do 
-	source /root/bot_vars
+	source /var/run/bot_vars
 	offset=$(($offset+1))
-	status=0
+	status='false'
 	updates=$(curl -s -k -X GET $api/getUpdates?offset=$offset)
 	status=$(jsonfilter -s "$updates" -e $.ok)
 	if [ $status = 'true' ]; then
@@ -29,6 +35,7 @@ do
 	
 		for update_id in $update_ids
 		do
+			echo "offset=$update_id" > /var/run/bot_vars
 			origin=$(jsonfilter -s "$updates"  -e "$.result[@.update_id=$update_id].message.chat.id")
 			msg_id=$(jsonfilter -s "$updates"  -e "$.result[@.update_id=$update_id].message.message_id")
 			username=$(jsonfilter -s "$updates"  -e "$.result[@.update_id=$update_id].message.chat.username")
@@ -40,13 +47,13 @@ do
 			origin_ans=$(jsonfilter -s "$updates"  -e "$.result[@.update_id=$update_id].callback_query.message.chat.id")
 
 			if [[ "$origin" != "$my_chat_id" && "$origin_ans" != "$my_chat_id" ]];then
-				echo "From: ${From}"$'\n'"To: ${To}"$'\n'"Subject: TelegramBOT"$'\n\n'"Someone with username ${username} (${name} ${lastname}) is trying to use your bot, sending the ${command}" | ssmtp "${Sender}"
+				echo "From: ${from}"$'\n'"To: ${to}"$'\n'"Subject: TelegramBOT"$'\n\n'"Someone with username ${username} (${name} ${lastname}) is trying to use your bot, sending the ${command}" | ssmtp "${to}"
 				curl -k -s -X POST $api/sendMessage -d reply_to_message_id=$msg_id -d chat_id=$origin -d parse_mode=Markdown --data-urlencode \
 				text="This is a Private bot. If you want to implement one for you, check this out https://github.com/alexwbaule/telegramopenwrt" 
 				curl -k -s -X POST $api/leaveChat -d chat_id=$origin  
 			else
 
-				/root/typing > /tmp/typing.log &
+				/sbin/typing > /tmp/typing.log &
 				#curl -k -X POST $api/sendChatAction -d "chat_id=$my_chat_id" -d "action=typing" 
 				if [ $(echo "$is_a_cmd" | grep "bot_command" -q; echo -n $?) == 0 ]; then 
 					cmd=$(echo $command |  awk '{print $1}')
@@ -59,7 +66,7 @@ do
 						cd ${plugins}
 						(echo "Call $cmd [$parms]" | logger -t "telegram_bot" -p daemon.info)&
 						result=$("./$cmd" $parms)
-						/root/telegram_sender "$result"
+						/sbin/telegram_sender "$result"
 						cd  ${path}
 					else
 						curl -k -s -X POST $api/sendMessage -d chat_id=$origin -d parse_mode=Markdown --data-urlencode text="Command *${cmd}* not found!" 
@@ -90,10 +97,6 @@ do
 				kill $(ps | grep -v grep | grep typing | awk '{print $1}')
 			fi
 		done
-	
-		if [ -n "$update_ids" ]; then
-			echo "offset=$update_id" > /root/bot_vars
-	  	fi
 	fi
 	starting=0
 	sleep 1

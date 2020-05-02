@@ -1,5 +1,6 @@
-HTTP=$(uci get proxy.config.HTTP |awk '{printf $1}')
-HTTPS=$(uci get proxy.config.HTTPS |awk '{printf $1}')
+
+HTTP=$(uci get telegramopenwrt.proxy.http | awk '{printf $1}')
+HTTPS=$(uci get telegramopenwrt.proxy.https | awk '{printf $1}')
 HTTP_ENABLE=$(iptables -t mangle -nL |grep MARK | grep -Eo "dpt:80" |awk -F ":" '{printf $2}')
 HTTPS_ENABLE=$(iptables -t mangle -nL |grep MARK | grep -Eo "dpt:443" |awk -F ":" '{printf $2}')
 

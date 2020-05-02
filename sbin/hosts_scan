@@ -1,6 +1,6 @@
 #!/bin/sh
 
-mkdir /root/arps &>/dev/null
+mkdir -p /usr/lib/telegramopenwrt/arps &>/dev/null
 
 (while [ true ] 
 do
@@ -10,17 +10,17 @@ do
 		LAST="NULL"	
 		ping $IP -w 1 -q &>/dev/null 
 		[ $? == 0 ]  && RESULT="UP" || RESULT="DOWN"
-		if [ -e /root/arps/$IP ]; then
-			LAST=$(cat /root/arps/$IP)
+		if [ -e /usr/lib/telegramopenwrt/arps/$IP ]; then
+			LAST=$(cat /usr/lib/telegramopenwrt/arps/$IP)
 		fi
 		if [ "${LAST}" != "${RESULT}" ];then
 			name=$(cat /tmp/dhcp.leases | grep " ${IP} " | awk '{print $4}')
 			[ "${name}" == "" ] && name=$(cat /tmp/hosts/dhcp.cfg01411c | grep "^${IP}" | awk '{print $2}')
 			date=$(date "+%d/%m/%Y %H:%M")
 			telegram=$(echo "*Device:* ${name}"$'\n'"*Data:* ${date}"$'\n'"*IP:* ${IP}"$'\n'"*State:* ${RESULT}")
-			/root/telebot "$telegram"		
+			/sbin/telebot "$telegram"		
 		fi
-		echo -en "${RESULT}" > /root/arps/$IP
+		echo -en "${RESULT}" > /usr/lib/telegramopenwrt/arps/$IP
 	done 
 	sleep 300
 done)&

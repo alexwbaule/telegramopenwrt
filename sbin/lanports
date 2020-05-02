@@ -1,7 +1,5 @@
 #!/bin/ash
 
-source /root/variables
-
 export PATH='/usr/bin:/usr/sbin:/bin:/sbin'
 
 has_offer=0
@@ -14,10 +12,8 @@ count=0
 		date=$(echo "${line}" | grep -oE "^[a-zA-Z]+[[:space:]]+[a-zA-z]+[[:space:]]+[0-9]+[[:space:]]+[0-9:]+ [0-9]+")
 		pnum=$(echo "${ports}" | cut -d ' ' -f 2)	
 		state=$(echo "${ports}" | cut -d ' ' -f 4)	
-		#echo "From: ${From}"$'\n'"To: ${To}"$'\n'"Subject: [openwrt] Port ${pnum} is ${state}"$'\n\n'"Data: ${date}"$'\n'"Porta: ${pnum}"$'\n'"Estado: ${state}" | ssmtp "${Sender}"
 		telegram=$(echo "*Port:* ${pnum}"$'\n'"*Data:* ${date}"$'\n'"*State:* ${state}")
-		#echo $telegram >>/tmp/log/lanports.log
-		/root/telebot "$telegram"
+		/sbin/telebot "$telegram"
 	fi
 	echo "${line}" | grep -q "DHCPOFFER" 
 	if [ $? == 0 ]; then
@@ -38,10 +34,8 @@ count=0
 		if [ "${name}" == "" ];then
 			name="\*"
 		fi
-		#echo "From: ${From}"$'\n'"To: ${To}"$'\n'"Subject: [openwrt] DHCP-ACK ${name} has ${ip}"$'\n\n'"Data: ${date}"$'\n'"IP: ${ip}"$'\n'"MACADDR: ${macaddr}" | ssmtp "${Sender}"
 		telegram=$(echo "*Device:* ${name}"$'\n'"*Data:* ${date}"$'\n'"*IP:* ${ip}"$'\n'"*MACADDR:* ${macaddr}")
-		#echo $telegram >>/tmp/log/lanports.log
-		/root/telebot "$telegram"
+		/sbin/telebot "$telegram"
 		has_offer=0
 	fi
 	if [ $count == 0 ]; then
