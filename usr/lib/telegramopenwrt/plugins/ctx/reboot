@@ -1,3 +1,11 @@
 #!/bin/sh
 
+url=$(uci get telegramopenwrt.global.url)
+key=$(uci get telegramopenwrt.global.key)
+api="$url$key"
+
+source /var/run/bot_vars
+offset=$(($offset+1))
+/usr/bin/curl -s -k -X GET $api/getUpdates?offset=$offset >/dev/null
+
 sleep 15 && echo "rebooting" | logger -t "telegram_bot" -p daemon.info && /sbin/reboot
