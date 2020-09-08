@@ -61,8 +61,8 @@ do
 					prms=$(echo $command | awk '{$1=""; print $0}')
 					parms=${prms//[\"\&\;\\\>\<\|]/}
 					if [ -f "${plugins}$cmd" ]; then
-						if [[ "$cmd" == "reboot" && $starting == 1 ]]; then
-							next;
+						if [[ "$cmd" == "/reboot" && $starting == 1 ]]; then
+							continue;
 						fi
 						cd ${plugins}
 						(echo "Call $cmd [$parms]" | logger -t "telegram_bot" -p daemon.info)&
