@@ -6,6 +6,7 @@ echo "starting"
 
 url=$(uci get telegramopenwrt.global.url)
 key=$(uci get telegramopenwrt.global.key)
+timeout=$(uci get telegramopenwrt.global.timeout)
 api="$url$key"
 my_chat_id=$(uci get telegramopenwrt.global.my_chat_id)
 from=$(uci get telegramopenwrt.smtp.from)
@@ -28,7 +29,7 @@ do
 	source /var/run/bot_vars
 	offset=$(($offset+1))
 	status='false'
-	updates=$(curl -s -k -X GET $api/getUpdates?offset=$offset)
+	updates=$(curl -s -k -X GET $api/getUpdates?offset=$offset\&timeout=$timeout)
 	status=$(jsonfilter -s "$updates" -e $.ok)
 	if [ $status = 'true' ]; then
 		update_ids=$(jsonfilter -s "$updates" -e $.result[*].update_id)
@@ -100,6 +101,5 @@ do
 		done
 	fi
 	starting=0
-	sleep 1
 done&
 } | (logger -t "telegram_bot" -p daemon.info)&
