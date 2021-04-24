@@ -2,6 +2,7 @@ config telegramopenwrt 'global'
 	option key '[PUT YOUR BOT KEY HERE]'
 	option url 'https://api.telegram.org/bot'
 	option my_chat_id '[PUT ID OF THE CHAT THAT YOU START WITH BOT]'
+	option timeout '60'
 
 config telegramopenwrt 'ipcam'
 	option header_auth '[HEADER AUTH]'
