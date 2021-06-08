@@ -34,9 +34,14 @@ count=0
 		if [ "${name}" == "" ];then
 			name="\*"
 		fi
-		telegram=$(echo "*Device:* ${name}"$'\n'"*Data:* ${date}"$'\n'"*IP:* ${ip}"$'\n'"*MACADDR:* ${macaddr}")
-		/sbin/telebot "$telegram"
-		has_offer=0
+		ignored_macaddrs_file=$(uci get telegramopenwrt.global.ignored_macaddrs_file)
+		if ! grep -q "$macaddr" $ignored_macaddrs_file; then
+			telegram=$(echo "*Device:* ${name}"$'\n'"*Data:* ${date}"$'\n'"*IP:* ${ip}"$'\n'"*MACADDR:* ${macaddr}")
+			/sbin/telebot "$telegram"
+			has_offer=0
+		else
+			echo "Ignored macaddr found in ignore list"
+		fi
 	fi
 	if [ $count == 0 ]; then
 		has_offer=0
