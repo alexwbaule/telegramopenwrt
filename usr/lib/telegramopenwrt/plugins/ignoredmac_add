@@ -2,4 +2,4 @@
 NEWMAC="$*"
 ignored_macaddrs_file=$(uci get telegramopenwrt.global.ignored_macaddrs_file)
 echo "${NEWMAC}" >> "$ignored_macaddrs_file"
-echo "Addign ${NEWMAC} to known MAC Addresses..."
+echo "Adding ${NEWMAC} to known MAC Addresses..."
