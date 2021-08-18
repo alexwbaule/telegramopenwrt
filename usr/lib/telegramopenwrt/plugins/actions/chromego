@@ -1,0 +1,25 @@
+#!/bin/sh
+
+action="$1"
+user="$2"
+word="$3"
+field="$4"
+
+if [ "$action" = "" ] || [ "$user" = "" ] || [ "$word" = "" ] || [ "$field" = "" ]; then
+	echo "1|Missing parameters!!"
+	return 1
+fi
+
+if [ "$action" == "add" ]; then
+	uci -q add_list chromego.$user.$field="${word}"
+	uci -q commit chromego &> /dev/null
+	/etc/init.d/uhttpd restart &> /dev/null
+	echo "1|Added ${word} in ${field} to user ${user}."
+	exit 0
+elif  [ "$action" == "del" ]; then
+	uci -q del_list chromego.$user.$field="${word}"
+	uci -q commit chromego &> /dev/null
+	/etc/init.d/uhttpd restart &> /dev/null
+	echo "1|Removed ${word} in ${field} to user ${user}."
+	exit 0
+fi

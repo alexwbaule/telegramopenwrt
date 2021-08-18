@@ -1,0 +1,47 @@
+#!/bin/sh
+
+old=$IFS
+IFS=$'\n'
+TOTAL=0
+
+echo "\`\`\`"
+echo "Chromego Permissions"
+
+for user in $(uci -q show chromego | grep "=chromego" | awk -F "." '{print $2}' | awk -F "=" '{print $1}')
+do
+	echo -en "User: $user\n"
+	echo -en "\tPermissions by_word\n"
+	IFS=$'^'
+	for word in $(uci -q -d "^" get chromego.$user.by_word)
+	do
+		v=$(echo "$word" | awk '{ gsub(/^[\047]|[\047]$/,""); print }')
+		echo -en "\t\t\t$v\n"
+	done
+	echo -en "\tPermissions by_author\n"
+	for word in $(uci -q -d "^" get chromego.$user.by_author)
+	do
+		v=$(echo "$word" | awk '{ gsub(/^[\047]|[\047]$/,""); print }')
+		echo -en "\t\t\t$v\n"
+	done
+	echo -en "\tPermissions by_title\n"
+	for word in $(uci -q -d "^" get chromego.$user.by_title)
+	do
+		v=$(echo "$word" | awk '{ gsub(/^[\047]|[\047]$/,""); print }')
+		echo -en "\t\t\t$v\n"
+	done
+	echo -en "\tPermissions by_url\n"
+	for word in $(uci -q -d "^" get chromego.$user.by_url)
+	do
+		v=$(echo "$word" | awk '{ gsub(/^[\047]|[\047]$/,""); print }')
+		echo -en "\t\t\t$v\n"
+	done
+	echo -en "\tPermissions by_genre\n"
+	for word in $(uci -q -d "^" get chromego.$user.by_genre)
+	do
+		v=$(echo "$word" | awk '{ gsub(/^[\047]|[\047]$/,""); print }')
+		echo -en "\t\t\t$v\n"
+	done
+done
+echo "\`\`\`"
+IFS=$old
+

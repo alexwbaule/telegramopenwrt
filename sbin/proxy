@@ -8,9 +8,9 @@ NETWORK=192.168.250.0/24
 CLIENTIFACE=br-lan
 FWMARK=2
 
-HTTP=$(uci get telegramopenwrt.proxy.http | awk '{printf $0}')
-HTTPS=$(uci get telegramopenwrt.proxy.https | awk '{printf $0}')
-EXCEPTIONS=$(uci get telegramopenwrt.proxy.exceptions | awk '{printf $0}')
+HTTP=$(uci -q get telegramopenwrt.proxy.http | awk '{printf $0}')
+HTTPS=$(uci -q get telegramopenwrt.proxy.https | awk '{printf $0}')
+EXCEPTIONS=$(uci -q get telegramopenwrt.proxy.exceptions | awk '{printf $0}')
 
 start() {
 	if [ "$HTTP" == "true" ]; then

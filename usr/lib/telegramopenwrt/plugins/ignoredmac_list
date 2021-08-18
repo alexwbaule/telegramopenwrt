@@ -1,5 +1,5 @@
 #!/bin/ash
-ignored_macaddrs_file=$(uci get telegramopenwrt.global.ignored_macaddrs_file)
+ignored_macaddrs_file=$(uci -q get telegramopenwrt.global.ignored_macaddrs_file)
 
 echo "*Ignored MAC Addresses*"
 cat "$ignored_macaddrs_file"

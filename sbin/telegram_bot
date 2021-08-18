@@ -4,13 +4,13 @@ PATH='/usr/bin:/usr/sbin:/bin:/sbin'
 
 echo "starting" 
 
-url=$(uci get telegramopenwrt.global.url)
-key=$(uci get telegramopenwrt.global.key)
-timeout=$(uci get telegramopenwrt.global.timeout)
+url=$(uci -q get telegramopenwrt.global.url)
+key=$(uci -q get telegramopenwrt.global.key)
+timeout=$(uci -q get telegramopenwrt.global.timeout)
 api="$url$key"
-my_chat_id=$(uci get telegramopenwrt.global.my_chat_id)
-from=$(uci get telegramopenwrt.smtp.from)
-to=$(uci get telegramopenwrt.smtp.to)
+my_chat_id=$(uci -q get telegramopenwrt.global.my_chat_id)
+from=$(uci -q get telegramopenwrt.smtp.from)
+to=$(uci -q get telegramopenwrt.smtp.to)
 path="/sbin"
 plugins="/usr/lib/telegramopenwrt/plugins"
 actions="${plugins}/actions"
@@ -59,7 +59,7 @@ do
 				#curl -k -X POST $api/sendChatAction -d "chat_id=$my_chat_id" -d "action=typing" 
 				if [ $(echo "$is_a_cmd" | grep "bot_command" -q; echo -n $?) == 0 ]; then 
 					cmd=$(echo $command |  awk '{print $1}')
-					prms=$(echo $command | awk '{$1=""; print $0}')
+					prms=$(echo $command | awk '{$1=""; sub(/^[ \t]+/, ""); print }')
 					parms=${prms//[\"\&\;\\\>\<\|]/}
 					if [ -f "${plugins}$cmd" ]; then
 						if [[ "$cmd" == "/reboot" && $starting == 1 ]]; then

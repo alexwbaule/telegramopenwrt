@@ -11,13 +11,13 @@ fi
 /etc/init.d/proxy stop &> /dev/null
 
 if [ "$RULE_NUM" == "0" ]; then
-	uci set telegramopenwrt.proxy.config.http=false
+	uci -q set telegramopenwrt.proxy.config.http=false
 elif [ "$RULE_NUM" == "1" ]; then
-	uci telegramopenwrt.proxy.config.https=false
+	uci -q telegramopenwrt.proxy.config.https=false
 elif [ "$RULE_NUM" == "2" ]; then
-	uci telegramopenwrt.proxy.config.http=false
-	uci telegramopenwrt.proxy.config.https=false
+	uci -q telegramopenwrt.proxy.config.http=false
+	uci -q telegramopenwrt.proxy.config.https=false
 fi
-uci commit proxy &> /dev/null
+uci -q commit proxy &> /dev/null
 echo "1|Proxy $RULE_NAME is stopped."
 exit 0

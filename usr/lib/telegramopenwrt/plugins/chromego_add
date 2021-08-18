@@ -1,0 +1,14 @@
+#!/bin/sh
+
+USER="$1"
+WORD="$2"
+
+VALID_USER=$(uci -q get chromego.$USER | awk '{printf $0}')
+
+if [ "$VALID_USER" = "chromego" ]; then
+	./ctx/chromego "chromego" "add" "$USER" "$WORD" >/dev/null
+	exit 0;
+fi
+echo "Error creating new rule for ${USER} word ${WORD}!"
+exit 1
+

@@ -1,10 +1,10 @@
 #!/bin/ash
 
-tvip=$(uci get telegramopenwrt.television.ipaddr)
-sender_name=$(uci get telegramopenwrt.television.sender_name)
-sender_number=$(uci get telegramopenwrt.television.sender_number)
-receiver_name=$(uci get telegramopenwrt.television.receiver_name)
-receiver_number=$(uci get telegramopenwrt.television.receiver_number)
+tvip=$(uci -q get telegramopenwrt.television.ipaddr)
+sender_name=$(uci -q get telegramopenwrt.television.sender_name)
+sender_number=$(uci -q get telegramopenwrt.television.sender_number)
+receiver_name=$(uci -q get telegramopenwrt.television.receiver_name)
+receiver_number=$(uci -q get telegramopenwrt.television.receiver_number)
 
 DATE=$(/bin/date +"%Y-%m-%d" | /usr/bin/awk '{printf $1}')
 TIME=$(/bin/date +"%T" | /usr/bin/awk '{printf $1}')

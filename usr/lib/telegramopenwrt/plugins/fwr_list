@@ -6,7 +6,7 @@ TOTAL=0
 
 echo "*Rules*"
 
-for rule in $(uci show firewall  | grep "@redirect" )
+for rule in $(uci -q show firewall  | grep "@redirect" )
 do
 	line=$(echo ${rule} | awk -F "." '{ if (NF > 3) print $3"."$4"."$5"."$6; else print $3 }' )
 	id=$(echo ${rule} | grep ".name" | grep -oE "\[[[:digit:]]+\]" | awk '{gsub("\\[|]","");printf $1}')

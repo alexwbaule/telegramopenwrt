@@ -2,15 +2,15 @@
 
 export PATH="/usr/bin:/usr/sbin:/bin:/sbin"
 
-url=$(uci get telegramopenwrt.global.url)
-key=$(uci get telegramopenwrt.global.key)
+url=$(uci -q get telegramopenwrt.global.url)
+key=$(uci -q get telegramopenwrt.global.key)
 api="$url$key"
-my_chat_id=$(uci get telegramopenwrt.global.my_chat_id)
+my_chat_id=$(uci -q get telegramopenwrt.global.my_chat_id)
 
 command="$1"
 text="$2"
 
-firewall=$(uci show firewall |grep "@rule" | grep name |grep -oE "\[[[:digit:]]+\].name='([[:graph:]]|[[:blank:]])+'" | awk -F ".name=" '{gsub(/[\047]|\[|\]/,"");printf "[ {\"callback_data\": \"##CMD##|" $1 "\^" $2 "\" ,\"text\" : \"" $2 ;system("[ \"$(uci -q get firewall.@rule["$1"].enabled)\" == \"0\" ] && echo -en \" (Disabled)\" || echo -en \" (Enabled)\"") ; print "\"} ],"}')
+firewall=$(uci -q show firewall |grep "@rule" | grep name |grep -oE "\[[[:digit:]]+\].name='([[:graph:]]|[[:blank:]])+'" | awk -F ".name=" '{gsub(/[\047]|\[|\]/,"");printf "[ {\"callback_data\": \"##CMD##|" $1 "\^" $2 "\" ,\"text\" : \"" $2 ;system("[ \"$(uci -q -q get firewall.@rule["$1"].enabled)\" == \"0\" ] && echo -en \" (Disabled)\" || echo -en \" (Enabled)\"") ; print "\"} ],"}')
 rules=${firewall:0:$((${#firewall}-1))}
 rls=${rules//##CMD##/$command}
 keyboard='{"inline_keyboard": ['$rls'] }'

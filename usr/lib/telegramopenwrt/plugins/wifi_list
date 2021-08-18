@@ -6,7 +6,7 @@ TOTAL=0
 
 echo "*Wireless*"
 
-for rule in $(uci show wireless  | grep "default_radio" )
+for rule in $(uci -q show wireless  | grep "default_radio" )
 do
 	line=$(echo ${rule} | awk -F "." '{print $3}')
 	id=$(echo ${rule} | grep ".ssid" | grep -oE "\[[[:digit:]]+\]" | awk '{gsub("\\[|]","");printf $1}')

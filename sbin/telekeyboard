@@ -2,16 +2,16 @@
 
 export PATH="/usr/bin:/usr/sbin:/bin:/sbin"
 
-url=$(uci get telegramopenwrt.global.url)
-key=$(uci get telegramopenwrt.global.key)
+url=$(uci -q get telegramopenwrt.global.url)
+key=$(uci -q get telegramopenwrt.global.key)
 api="$url$key"
-my_chat_id=$(uci get telegramopenwrt.global.my_chat_id)
+my_chat_id=$(uci -q get telegramopenwrt.global.my_chat_id)
 
 command="$1"
 
 command_new=${command//_/\\_}
 
-firewall=$(uci show firewall |grep "@rule" | grep name |grep -oE "\[[[:digit:]]+\].name='([[:graph:]]|[[:blank:]])+'" | awk -F ".name=" '{gsub(/[\047]|\[|\]/,"");print "[ {\"callback_data\": \""$1 "\" ,\"text\" : \"" $2 "\"} ],"}')
+firewall=$(uci -q show firewall |grep "@rule" | grep name |grep -oE "\[[[:digit:]]+\].name='([[:graph:]]|[[:blank:]])+'" | awk -F ".name=" '{gsub(/[\047]|\[|\]/,"");print "[ {\"callback_data\": \""$1 "\" ,\"text\" : \"" $2 "\"} ],"}')
 rules=${firewall:0:$((${#firewall}-1))}
 
 keyboard='{"inline_keyboard": ['$rules'] }'

@@ -1,0 +1,25 @@
+#!/bin/sh
+
+export PATH="/usr/bin:/usr/sbin:/bin:/sbin"
+
+url=$(uci -q get telegramopenwrt.global.url)
+key=$(uci -q get telegramopenwrt.global.key)
+api="$url$key"
+my_chat_id=$(uci -q get telegramopenwrt.global.my_chat_id)
+
+command="$1"
+action="$2"
+user="$3"
+word="$4"
+
+WORD='[ {"callback_data": "'${command}'|'${action}'^'${user}'^'${word}'^by_word" ,"text" : "'${action}' word '${word}' in by_word"} ]'
+URL='[ {"callback_data": "'${command}'|'${action}'^'${user}'^'${word}'^by_url" ,"text" : "'${action}' word '${word}' in by_url"} ]'
+TITLE='[ {"callback_data": "'${command}'|'${action}'^'${user}'^'${word}'^by_title" ,"text" : "'${action}' word '${word}' in by_title"} ]'
+AUTHOR='[ {"callback_data": "'${command}'|'${action}'^'${user}'^'${word}'^by_author" ,"text" : "'${action}' word '${word}' in by_author"} ]'
+GENRE='[ {"callback_data": "'${command}'|'${action}'^'${user}'^'${word}'^by_genre" ,"text" : "'${action}' word '${word}' in by_genre"} ]'
+
+
+keyboard='{"inline_keyboard": ['$WORD','$URL','$TITLE', '$AUTHOR', '$GENRE'] }'
+text=$(echo -en "Choose a action")
+
+curl -k -s -X POST -H "Charset: UTF-8"  $api/sendMessage -d chat_id=$my_chat_id -d "reply_markup=${keyboard}" -d "text=${text}"

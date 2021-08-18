@@ -2,10 +2,10 @@
 
 num="$1"
 
-ipaddr=$(uci get telegramopenwrt.ipcam.ipaddr)
-header_auth=$(uci get telegramopenwrt.ipcam.header_auth)
-user=$(uci get telegramopenwrt.ipcam.user)
-passwd=$(uci get telegramopenwrt.ipcam.passwd)
+ipaddr=$(uci -q get telegramopenwrt.ipcam.ipaddr)
+header_auth=$(uci -q get telegramopenwrt.ipcam.header_auth)
+user=$(uci -q get telegramopenwrt.ipcam.user)
+passwd=$(uci -q get telegramopenwrt.ipcam.passwd)
 
 # command: 
 # 1 -> para camera
