@@ -3,7 +3,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=telegram-openwrt
 
 PKG_VERSION:=1.0.0
-PKG_RELEASE:=4
+PKG_RELEASE:=5
 
 PKG_LICENSE:=GPL-2.0
 
@@ -54,7 +54,7 @@ define Package/telegram-openwrt/install
 	echo "$(PKG_VERSION)-$(PKG_RELEASE)" > $(1)/usr/share/telegramopenwrt/version
 	
 	$(INSTALL_DIR) $(1)/usr/lib/telegramopenwrt/plugins/actions
-	$(INSTALL_DATA) ./usr/lib/telegramopenwrt/plugins/actions/cam_mv \
+	$(INSTALL_BIN) ./usr/lib/telegramopenwrt/plugins/actions/cam_mv \
 				./usr/lib/telegramopenwrt/plugins/actions/fwr_disable \
 				./usr/lib/telegramopenwrt/plugins/actions/fw_delete \
 				./usr/lib/telegramopenwrt/plugins/actions/proc_stop \
@@ -73,7 +73,7 @@ define Package/telegram-openwrt/install
 		$(1)/usr/lib/telegramopenwrt/plugins/actions
 	
 	$(INSTALL_DIR) $(1)/usr/lib/telegramopenwrt/plugins/ctx
-	$(INSTALL_DATA) ./usr/lib/telegramopenwrt/plugins/ctx/wifi_list \
+	$(INSTALL_BIN) ./usr/lib/telegramopenwrt/plugins/ctx/wifi_list \
 				./usr/lib/telegramopenwrt/plugins/ctx/fwr_list \
 				./usr/lib/telegramopenwrt/plugins/ctx/service_list \
 				./usr/lib/telegramopenwrt/plugins/ctx/chromego \
@@ -129,7 +129,7 @@ define Package/telegram-openwrt/install
 		$(1)/usr/lib/telegramopenwrt/plugins/help
 
 	$(INSTALL_DIR) $(1)/usr/lib/telegramopenwrt/plugins
-	$(INSTALL_DATA) ./usr/lib/telegramopenwrt/plugins/cam_mv \
+	$(INSTALL_BIN) ./usr/lib/telegramopenwrt/plugins/cam_mv \
 				./usr/lib/telegramopenwrt/plugins/fw_unblock \
 				./usr/lib/telegramopenwrt/plugins/fw_add \
 				./usr/lib/telegramopenwrt/plugins/cam_vdo \
