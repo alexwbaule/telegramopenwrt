@@ -16,8 +16,8 @@ function log(){
     chat=$(jsonfilter -s "${TEXT}" -e "$.result.chat")
     date=$(jsonfilter -s "${TEXT}" -e "$.result.date")
     msg=$(echo -e $(jsonfilter -s "${TEXT}" -e "$.result.text"))
-    entities=$(jsonfilter -s "${TEXT}" -e "$.result.entities")
-    echo "{\"ok\": ${ok},\"result\": {\"message_id\": ${message_id}, \"from\": ${from}, \"chat\": ${chat},\"date\": \"${date}\",\"text\": \"${msg:0:100}\",\"entities\": ${entities} }}" | logger -t "telegram_bot[$$]" -p daemon.info
+    entities=$(jsonfilter -s "${TEXT}" -e "$.result.entities[0]")
+    echo "{\"ok\": ${ok},\"result\":{\"message_id\": ${message_id}, \"from\":${from}, \"chat\":${chat},\"date\": \"${date}\",\"text\": \"${msg:0:100}\",\"entities\": [${entities}]}}" | logger -t "telegram_bot[$$]" -p daemon.info
 }
 
 IFS=$'\n'
