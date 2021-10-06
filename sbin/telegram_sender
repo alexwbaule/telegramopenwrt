@@ -26,16 +26,16 @@ do
   fi
 
   if [ "$send" -eq "1" ]; then
-    curl -k -s -X POST $api/sendMessage -d chat_id=$my_chat_id -d parse_mode=Markdown --data-urlencode text="$full" >>/tmp/telegram.log
+    curl -k -s -X POST $api/sendMessage -d chat_id=$my_chat_id -d parse_mode=Markdown --data-urlencode text="$full" | logger -t "telegram_bot[$$]" -p daemon.info
     full=""
     count=0
   elif [ "$send" -eq "2" ]; then
-    curl -k -s -X POST $api/sendMessage -d chat_id=$my_chat_id -d parse_mode=Markdown --data-urlencode text="$full" >>/tmp/telegram.log
+    curl -k -s -X POST $api/sendMessage -d chat_id=$my_chat_id -d parse_mode=Markdown --data-urlencode text="$full" | logger -t "telegram_bot[$$]" -p daemon.info
     full=${item}$'\n'
     count=${#item}
   fi
 done
 
 if [ $count -gt "0" ];then
-    curl -k -s -X POST $api/sendMessage -d chat_id=$my_chat_id -d parse_mode=Markdown --data-urlencode text="$full" >>/tmp/telegram.log
+    curl -k -s -X POST $api/sendMessage -d chat_id=$my_chat_id -d parse_mode=Markdown --data-urlencode text="$full" | logger -t "telegram_bot[$$]" -p daemon.info
 fi

@@ -7,14 +7,13 @@ key=$(uci -q get telegramopenwrt.global.key)
 api="$url$key"
 my_chat_id=$(uci -q get telegramopenwrt.global.my_chat_id)
 
-curl -k -X POST $api/sendChatAction -d "chat_id=$my_chat_id" -d "action=record_video" &> /tmp/telegram.log
+curl -s -k -X POST $api/sendChatAction -d "chat_id=$my_chat_id" -d "action=record_video" | logger -t "telegram_bot[$$]" -p daemon.info
 
 curl -s -k -H "Authorization:Basic ${header_auth}" "http://${ipaddr}/videostream.asf?user=${user}&pwd=${passwd}" -m 25 -o /tmp/movie.asf -D /tmp/header
 
-curl -k -X POST $api/sendChatAction -d "chat_id=$my_chat_id" -d "action=record_video" &> /tmp/telegram.log
+curl -s -k -X POST $api/sendChatAction -d "chat_id=$my_chat_id" -d "action=record_video" | logger -t "telegram_bot[$$]" -p daemon.info
 
 DETAILS=$(cat /tmp/header | grep "Date\|Server")
 
-curl -k -X POST $api/sendVideo -H "Content-Type: multipart/form-data" -F "chat_id=$my_chat_id" -F "video=@/tmp/movie.asf" -F "reply_to_message_id=$id" -F "caption=$DETAILS" &> /tmp/telegram_photo.log
-
+curl -s -k -X POST $api/sendVideo -H "Content-Type: multipart/form-data" -F "chat_id=$my_chat_id" -F "video=@/tmp/movie.asf" -F "reply_to_message_id=$id" -F "caption=$DETAILS" | logger -t "telegram_bot[$$]" -p daemon.info
 rm -f /tmp/movie.asf

@@ -66,7 +66,7 @@ do
 							continue;
 						fi
 						cd ${plugins}
-						(echo "Call $cmd [$parms]" | logger -t "telegram_bot" -p daemon.info)&
+						(echo "Call $cmd [$parms]" | logger -t "telegram_bot[$$]" -p daemon.info)&
 						result=$("./$cmd" $parms)
 						/sbin/telegram_sender "$result"
 						cd  ${path}
@@ -81,7 +81,7 @@ do
 					parameter=${fprms//[\&\;\\\>\<\|]/}
 					if [ -f "${actions}/$fcmd" ]; then
 						cd ${actions}
-						(echo "Call $fcmd" | logger -t "telegram_bot" -p daemon.info)&
+						(echo "Call $fcmd" | logger -t "telegram_bot[$$]" -p daemon.info)&
 						result=$(IFS="\^" ; "./$fcmd" ${parameter})
 						remove=$(echo $result | awk -F "\|" '{print $1}')
 						msg=$(echo $result | awk -F "\|" '{print $2}')

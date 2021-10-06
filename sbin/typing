@@ -10,7 +10,7 @@ my_chat_id=$(uci -q get telegramopenwrt.global.my_chat_id)
 
 while [ true ] 
 do
-	curl -k -X POST $api/sendChatAction -d "chat_id=$my_chat_id" -d "action=typing" &> /tmp/telegram.log   
+	curl -s -k -X POST $api/sendChatAction -d "chat_id=$my_chat_id" -d "action=typing" | logger -t "telegram_bot[$$]" -p daemon.info
 	echo "Typing"
 	sleep 6
 done

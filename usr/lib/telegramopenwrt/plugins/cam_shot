@@ -7,11 +7,11 @@ key=$(uci -q get telegramopenwrt.global.key)
 api="$url$key"
 my_chat_id=$(uci -q get telegramopenwrt.global.my_chat_id)
 
-curl -k -X POST $api/sendChatAction -d "chat_id=$my_chat_id" -d "action=upload_photo" &> /tmp/telegram.log
+curl -s -k -X POST $api/sendChatAction -d "chat_id=$my_chat_id" -d "action=upload_photo" | logger -t "telegram_bot[$$]" -p daemon.info
 
 curl -s -k -H "Authorization:Basic ${header_auth}" "http://${ipaddr}/snapshot.cgi?user=${user}&pwd=${passwd}" -o /tmp/pic.jpg -D /tmp/header
 
 DATE=$(cat /tmp/header |grep Date | sed -e 's/Date: //')
 NEW_DATE=$(date "+%d/%m/%Y %T %Z" -d "@$(($(date -u +%s -D "%a, %e %b %Y %T" -d "${DATE}")))")
 
-curl -k -X POST $api/sendPhoto -H "Content-Type: multipart/form-data" -F "chat_id=$my_chat_id" -F "photo=@/tmp/pic.jpg" -F "reply_to_message_id=$id" -F "caption=Date: $NEW_DATE" &> /tmp/telegram_photo.log
+curl -s -k -X POST $api/sendPhoto -H "Content-Type: multipart/form-data" -F "chat_id=$my_chat_id" -F "photo=@/tmp/pic.jpg" -F "reply_to_message_id=$id" -F "caption=Date: $NEW_DATE" | logger -t "telegram_bot[$$]" -p daemon.info

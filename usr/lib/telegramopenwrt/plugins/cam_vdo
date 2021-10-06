@@ -8,15 +8,15 @@ api="$url$key"
 my_chat_id=$(uci -q get telegramopenwrt.global.my_chat_id)
 
 
-curl -k -X POST $api/sendChatAction -d "chat_id=$my_chat_id" -d "action=record_video" &> /tmp/telegram.log
+curl -s -k -X POST $api/sendChatAction -d "chat_id=$my_chat_id" -d "action=record_video" | logger -t "telegram_bot[$$]" -p daemon.info
 
 curl -s -k -H "Authorization:Basic ${header_auth}" "http://${ipaddr}/videostream.asf?user=${user}&pwd=${passwd}" -m 25 -o /tmp/movie.asf -D /tmp/header 
 
-curl -k -X POST $api/sendChatAction -d "chat_id=$my_chat_id" -d "action=record_video" &> /tmp/telegram.log
+curl -s -k -X POST $api/sendChatAction -d "chat_id=$my_chat_id" -d "action=record_video" | logger -t "telegram_bot[$$]" -p daemon.info
 
 DATE=$(cat /tmp/header |grep Date | sed -e 's/Date: //')
 NEW_DATE=$(date "+%d/%m/%Y %T %Z" -d "@$(($(date -u +%s -D "%a, %e %b %Y %T" -d "${DATE}")))")
 
-curl -k -X POST $api/sendVideo -H "Content-Type: multipart/form-data" -F "chat_id=$my_chat_id" -F "video=@/tmp/movie.mp4" -F "reply_to_message_id=$id" -F "caption=Date: $NEW_DATE" &> /tmp/telegram_photo.log
+curl -s -k -X POST $api/sendVideo -H "Content-Type: multipart/form-data" -F "chat_id=$my_chat_id" -F "video=@/tmp/movie.mp4" -F "reply_to_message_id=$id" -F "caption=Date: $NEW_DATE" | logger -t "telegram_bot[$$]" -p daemon.info
 
 rm -f /tmp/movie.asf
