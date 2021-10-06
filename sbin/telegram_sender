@@ -6,11 +6,21 @@ url=$(uci -q get telegramopenwrt.global.url)
 key=$(uci -q get telegramopenwrt.global.key)
 api="$url$key"
 my_chat_id=$(uci -q get telegramopenwrt.global.my_chat_id)
-
 items=$1
 
-IFS=$'\n'
+function log(){
+    TEXT=$@
+    ok=$(jsonfilter -s "${TEXT}" -e "$.ok")
+    message_id=$(jsonfilter -s "${TEXT}" -e "$.result.message_id")
+    from=$(jsonfilter -s "${TEXT}" -e "$.result.from")
+    chat=$(jsonfilter -s "${TEXT}" -e "$.result.chat")
+    date=$(jsonfilter -s "${TEXT}" -e "$.result.date")
+    msg=$(echo -e $(jsonfilter -s "${TEXT}" -e "$.result.text"))
+    entities=$(jsonfilter -s "${TEXT}" -e "$.result.entities")
+    echo "{\"ok\": ${ok},\"result\": {\"message_id\": ${message_id}, \"from\": ${from}, \"chat\": ${chat},\"date\": \"${date}\",\"text\": \"${msg:0:100}\",\"entities\": ${entities} }}" | logger -t "telegram_bot[$$]" -p daemon.info
+}
 
+IFS=$'\n'
 count=0
 for item in $items
 do
@@ -26,16 +36,19 @@ do
   fi
 
   if [ "$send" -eq "1" ]; then
-    curl -k -s -X POST $api/sendMessage -d chat_id=$my_chat_id -d parse_mode=Markdown --data-urlencode text="$full" | logger -t "telegram_bot[$$]" -p daemon.info
+    response=$(curl -k -s -X POST $api/sendMessage -d chat_id=$my_chat_id -d parse_mode=Markdown --data-urlencode text="$full")
+    log $response
     full=""
     count=0
   elif [ "$send" -eq "2" ]; then
-    curl -k -s -X POST $api/sendMessage -d chat_id=$my_chat_id -d parse_mode=Markdown --data-urlencode text="$full" | logger -t "telegram_bot[$$]" -p daemon.info
+    response=$(curl -k -s -X POST $api/sendMessage -d chat_id=$my_chat_id -d parse_mode=Markdown --data-urlencode text="$full")
+    log $response
     full=${item}$'\n'
     count=${#item}
   fi
 done
 
 if [ $count -gt "0" ];then
-    curl -k -s -X POST $api/sendMessage -d chat_id=$my_chat_id -d parse_mode=Markdown --data-urlencode text="$full" | logger -t "telegram_bot[$$]" -p daemon.info
+    response=$(curl -k -s -X POST $api/sendMessage -d chat_id=$my_chat_id -d parse_mode=Markdown --data-urlencode text="$full")
+    log $response
 fi
