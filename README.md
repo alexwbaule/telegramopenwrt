@@ -222,4 +222,10 @@ The telegram_bot script is a loop that receives the updates every second and che
 Inside the plugins directory, there is the special command "start", which returns a message with the commands and a brief help on each command.
 For this command to work properly, you need to create a file inside the plugins / help directory, with the name equal to the command.
 
+## License
 
+See [LICENSE](LICENSE) file.
+ 
+## Package Guidelines
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) file.
