@@ -1,0 +1,26 @@
+#!/bin/sh
+# Create a UDP packet to puncture a hole through a NAT firewall of your ISP
+# Useful with OpenVPN in UDP mode
+# Needs nping to create raw IP packet (cannot use nc/ncat because local socket is already used)
+# Use DDNS, STUN or chekip service to find your current public NAT IP
+
+SPORT="$1"
+DADDR="$2"
+DPORT="$3"
+
+if echo "$SPORT"|grep -q -E -e '^[0-9]{1,5}$'; then
+if echo "$DPORT"|grep -q -E -e '^[0-9]{1,5}$'; then
+if echo "$DADDR"|grep -q -E -e '^[0-9a-zA-Z][0-9a-zA-Z\.\-]*\.[0-9a-zA-Z\.\-]*[0-9a-zA-Z]$'; then
+if [ -x /usr/bin/nping ]; then
+        nping --udp -N --send-ip -v4 -g "${SPORT}" -p "${DPORT}" -c 1 "${DADDR}"|grep SENT
+        exit 0
+else
+        echo "NPING not installed. Use '*opkg install nping*'."
+        exit 1
+fi
+fi
+fi
+fi
+
+echo "Wrong parameters. Use '*/ping_udp <local_port> <dest_ip> <dest_port>*'."
+exit 1
