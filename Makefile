@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=telegram-openwrt
 
-PKG_VERSION:=1.0.3
+PKG_VERSION:=1.0.4
 PKG_RELEASE:=1
 
 PKG_LICENSE:=GPL-2.0

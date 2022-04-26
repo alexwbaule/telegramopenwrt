@@ -1,4 +1,7 @@
 #!/bin/sh
+
+echo -n "telegram_bot" >/proc/$$/comm;
+
 {
 PATH='/usr/bin:/usr/sbin:/bin:/sbin'
 
