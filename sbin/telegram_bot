@@ -17,7 +17,7 @@ to=$(uci -q get telegramopenwrt.smtp.to)
 path="/sbin"
 plugins="/usr/lib/telegramopenwrt/plugins"
 actions="${plugins}/actions"
-ps_cmd=$([[ $(readlink -fn /bin/ps) == "/bin/busybox" ]] && echo "ps w" || echo "ps aw")
+ps_cmd=$([[ $(readlink -fn /bin/ps) == "/bin/busybox" ]] && echo "ps w" || echo "ps ax")
 touch  /var/run/bot_vars
 
 command_not_found="Sorry,

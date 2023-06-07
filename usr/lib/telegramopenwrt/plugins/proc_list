@@ -1,6 +1,6 @@
 #!/bin/sh
 
-ps_cmd=$([[ $(readlink -fn /bin/ps) == "/bin/busybox" ]] && echo "ps w" || echo "ps aw")
+ps_cmd=$([[ $(readlink -fn /bin/ps) == "/bin/busybox" ]] && echo "ps w" || echo "ps ax")
 
 
 for i in $(${ps_cmd} | grep -v get_services | grep -v grep |  grep -v PID | awk '{print $1}')
