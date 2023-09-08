@@ -1,0 +1,14 @@
+#!/bin/sh
+
+IFACE="$1"
+
+if [ "$IFACE" == "" ]; then
+	echo "1|Network interface dont exist !!"
+	return 1
+else
+	uci -q set network.$IFACE.disabled='0'
+	uci -q commit network &> /dev/null
+	/sbin/ifdown $IFACE && /sbin/ifup $IFACE &> /dev/null
+	echo "1|Network Interface $IFACE was restarted."
+	exit 0
+fi

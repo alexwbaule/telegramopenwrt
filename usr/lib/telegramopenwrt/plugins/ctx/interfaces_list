@@ -1,0 +1,17 @@
+#!/bin/sh
+
+export PATH="/usr/bin:/usr/sbin:/bin:/sbin"
+
+url=$(uci -q get telegramopenwrt.global.url)
+key=$(uci -q get telegramopenwrt.global.key)
+api="$url$key"
+my_chat_id=$(uci -q get telegramopenwrt.global.my_chat_id)
+
+command="$1"
+text="$2"
+
+INTERFACES=$(ubus list network.interface.* |  awk -F"." '{print " [ {\"callback_data\": \"##CMD##|"$3"^\" ,\"text\" : \""$3"\"} ],"}')
+rules=${INTERFACES:0:$((${#INTERFACES}-1))}
+rls=${rules//##CMD##/$command}
+keyboard='{"inline_keyboard": ['$rls'] }'
+curl -k -s -X POST -H "Charset: UTF-8"  $api/sendMessage -d chat_id=$my_chat_id -d "reply_markup=${keyboard}" -d "text=${text}"

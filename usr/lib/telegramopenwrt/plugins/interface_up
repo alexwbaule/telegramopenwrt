@@ -1,0 +1,4 @@
+#!/bin/sh
+
+
+./ctx/interfaces_list "interface_up" "Choose a Network interface to up:" >/dev/null
