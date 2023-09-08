@@ -23,12 +23,12 @@ Get the number and replace "[PUT ID OF THE CHAT THAT YOU START WITH BOT]" in the
 ├── etc
 │   ├── config
 │   │   └── telegramopenwrt
-│   └── init.d
-│       ├── hosts_scan
-│       ├── lanports
-│       └── telegram_bot
-├── LICENSE
-├── README.md
+│   ├── init.d
+│   │   ├── hosts_scan
+│   │   ├── lanports
+│   │   └── telegram_bot
+│   └── telegramopenwrt
+│       └── macaddr.ignore
 ├── sbin
 │   ├── camkeyboard
 │   ├── hosts_scan
@@ -45,11 +45,15 @@ Get the number and replace "[PUT ID OF THE CHAT THAT YOU START WITH BOT]" in the
             └── plugins
                 ├── actions
                 │   ├── cam_mv
+                │   ├── chromego
                 │   ├── fw_delete
                 │   ├── fw_disable
                 │   ├── fw_enable
                 │   ├── fwr_disable
                 │   ├── fwr_enable
+                │   ├── interface_down
+                │   ├── interface_restart
+                │   ├── interface_up
                 │   ├── light_control
                 │   ├── proc_restart
                 │   ├── proc_start
@@ -63,10 +67,15 @@ Get the number and replace "[PUT ID OF THE CHAT THAT YOU START WITH BOT]" in the
                 ├── cam_mv
                 ├── cam_shot
                 ├── cam_vdo
+                ├── chromego_add
+                ├── chromego_del
+                ├── chromego_list
                 ├── ctx
                 │   ├── cam_kbd
+                │   ├── chromego
                 │   ├── fw_list
                 │   ├── fwr_list
+                │   ├── interfaces_list
                 │   ├── light_list
                 │   ├── proxy
                 │   ├── reboot
@@ -90,6 +99,9 @@ Get the number and replace "[PUT ID OF THE CHAT THAT YOU START WITH BOT]" in the
                 │   ├── cam_mv
                 │   ├── cam_shot
                 │   ├── cam_vdo
+                │   ├── chromego_add
+                │   ├── chromego_del
+                │   ├── chromego_list
                 │   ├── fw_add
                 │   ├── fw_delete
                 │   ├── fw_disable
@@ -104,9 +116,18 @@ Get the number and replace "[PUT ID OF THE CHAT THAT YOU START WITH BOT]" in the
                 │   ├── get_ping
                 │   ├── get_uptime
                 │   ├── hst_list
+                │   ├── ignoredmac_add
+                │   ├── ignoredmac_list
+                │   ├── interface_down
+                │   ├── interface_restart
+                │   ├── interfaces_list
+                │   ├── interface_up
                 │   ├── lights
                 │   ├── msg_tv
                 │   ├── netstat
+                │   ├── opkg_install
+                │   ├── opkg_update
+                │   ├── ping_udp
                 │   ├── proc_list
                 │   ├── proc_restart
                 │   ├── proc_start
@@ -123,9 +144,18 @@ Get the number and replace "[PUT ID OF THE CHAT THAT YOU START WITH BOT]" in the
                 │   ├── wifi_restart
                 │   └── wll_list
                 ├── hst_list
+                ├── ignoredmac_add
+                ├── ignoredmac_list
+                ├── interface_down
+                ├── interface_restart
+                ├── interfaces_list
+                ├── interface_up
                 ├── lights
                 ├── msg_tv
                 ├── netstat
+                ├── opkg_install
+                ├── opkg_update
+                ├── ping_udp
                 ├── proc_list
                 ├── proc_restart
                 ├── proc_start
@@ -141,8 +171,6 @@ Get the number and replace "[PUT ID OF THE CHAT THAT YOU START WITH BOT]" in the
                 ├── wifi_list
                 ├── wifi_restart
                 └── wll_list
-
-11 directories, 110 files
 ```
 #### lanports file
 
@@ -173,6 +201,9 @@ There are some pre-built commands, which are:
 * cam_mv: Move the camera arround.
 * cam_shot: Get a Pic from the camera.
 * cam_vdo: Get a 25 seconds record from a camIP.
+* chromego_add: Include to a user in chromego, a word to be used in permissions (block url/youtube channel/etc).
+* chromego_del: Remove a word from a user in chromego to be used in permissions (block url/youtube channel/etc).
+* chromego_list: List all permissions in chromego (block url/youtube channel/etc).
 * fw_add: Block a hostname using a deny rule in firewall, if append time to command will block from 23:00 to 8:00
 * fw_delete: Remove a hostname from a deny firewall rule, if hostname is empty, will remove all rules created by this bot.
 * fw_disable: Disable a firewall rule.
@@ -187,15 +218,24 @@ There are some pre-built commands, which are:
 * get_ping: Ping a address or host, return Up or Down.
 * get_uptime: Return the uptime from this Device.
 * hst_list: Get hosts in the dhcp Leases. If a hostname is present, search only for this hostname.
+* ignoredmac_add: Add a new macaddress to the allowlist and avoid being notified about it.
+* ignoredmac_list: Shows the list of ignored mac addresses that will not be notified by the bot.
+* interface_down: Shutdown a interface by name.
+* interface_restart: Restart a interface by name.
+* interfaces_list: Get interfaces configuration.
+* interface_up: Start up a interface by name.
 * lights: Turn On or Off house Lights.
 * msg_tv: Send Message to Samsung TV
 * netstat: Prints netstat table in ESTABLISHED, CLOSED and TIME\_WAIT State.
-* proc_list: List all process in execution 
+* opkg_install: Install a package from opkg.
+* opkg_update: Update list of packages avaliable.
+* ping_udp: Create a UDP packet to puncture a hole through a NAT firewall of your ISP
+* proc_list: List all process in execution
 * proc_restart: Restart a process in init.d
 * proc_start: Start a process in init.d
 * proc_stop: Stop a process in init.d
-* proxy_disable: Disable HTTP and HTTPS or HTTP or HTTPS proxy. 
-* proxy_enable: Enable HTTP and HTTPS or HTTP or HTTPS proxy. 
+* proxy_disable: Disable HTTP and HTTPS or HTTP or HTTPS proxy.
+* proxy_enable: Enable HTTP and HTTPS or HTTP or HTTPS proxy.
 * proxy_list: List proxy rules that is enabled.
 * reboot: Reboot the router.
 * start: This menu help!
@@ -205,6 +245,7 @@ There are some pre-built commands, which are:
 * wifi_list: List all wireless devices.
 * wifi_restart: Restart a wireless device radio.
 * wll_list: Get a wifi clients list that is connected to this devices.
+
 
 
 #### help directory inside plugins
