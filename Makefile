@@ -131,6 +131,8 @@ define Package/telegram-openwrt/install
 				./usr/lib/telegramopenwrt/plugins/help/hst_list \
 				./usr/lib/telegramopenwrt/plugins/help/netstat \
 				./usr/lib/telegramopenwrt/plugins/help/interface_restart \
+				./usr/lib/telegramopenwrt/plugins/help/interface_up \
+				./usr/lib/telegramopenwrt/plugins/help/interface_down \
         		./usr/lib/telegramopenwrt/plugins/help/interfaces_list \
         		./usr/lib/telegramopenwrt/plugins/help/opkg_install \
         		./usr/lib/telegramopenwrt/plugins/help/opkg_update \
