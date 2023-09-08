@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=telegram-openwrt
 
-PKG_VERSION:=1.0.6
+PKG_VERSION:=1.1.0
 PKG_RELEASE:=1
 
 PKG_LICENSE:=GPL-2.0
@@ -70,6 +70,9 @@ define Package/telegram-openwrt/install
 				./usr/lib/telegramopenwrt/plugins/actions/light_control \
 				./usr/lib/telegramopenwrt/plugins/actions/proc_start \
 				./usr/lib/telegramopenwrt/plugins/actions/fw_enable \
+				./usr/lib/telegramopenwrt/plugins/actions/interface_down \
+        		./usr/lib/telegramopenwrt/plugins/actions/interface_restart \
+        		./usr/lib/telegramopenwrt/plugins/actions/interface_up \
 		$(1)/usr/lib/telegramopenwrt/plugins/actions
 	
 	$(INSTALL_DIR) $(1)/usr/lib/telegramopenwrt/plugins/ctx
@@ -82,6 +85,7 @@ define Package/telegram-openwrt/install
 				./usr/lib/telegramopenwrt/plugins/ctx/proxy \
 				./usr/lib/telegramopenwrt/plugins/ctx/fw_list \
 				./usr/lib/telegramopenwrt/plugins/ctx/light_list \
+				./usr/lib/telegramopenwrt/plugins/ctx/interfaces_list \
 		$(1)/usr/lib/telegramopenwrt/plugins/ctx
 	
 	$(INSTALL_DIR) $(1)/usr/lib/telegramopenwrt/plugins/help
@@ -126,6 +130,10 @@ define Package/telegram-openwrt/install
 				./usr/lib/telegramopenwrt/plugins/help/fw_enable \
 				./usr/lib/telegramopenwrt/plugins/help/hst_list \
 				./usr/lib/telegramopenwrt/plugins/help/netstat \
+				./usr/lib/telegramopenwrt/plugins/help/interface_restart \
+        		./usr/lib/telegramopenwrt/plugins/help/interfaces_list \
+        		./usr/lib/telegramopenwrt/plugins/help/opkg_install \
+        		./usr/lib/telegramopenwrt/plugins/help/opkg_update \
 		$(1)/usr/lib/telegramopenwrt/plugins/help
 
 	$(INSTALL_DIR) $(1)/usr/lib/telegramopenwrt/plugins
@@ -170,6 +178,12 @@ define Package/telegram-openwrt/install
 				./usr/lib/telegramopenwrt/plugins/fw_enable \
 				./usr/lib/telegramopenwrt/plugins/hst_list \
 				./usr/lib/telegramopenwrt/plugins/netstat \
+				./usr/lib/telegramopenwrt/plugins/interface_down \
+        		./usr/lib/telegramopenwrt/plugins/interface_restart \
+        		./usr/lib/telegramopenwrt/plugins/interface_up \
+        		./usr/lib/telegramopenwrt/plugins/interfaces_list \
+        		./usr/lib/telegramopenwrt/plugins/opkg_install \
+        		./usr/lib/telegramopenwrt/plugins/opkg_update \
 		$(1)/usr/lib/telegramopenwrt/plugins
 
 	$(INSTALL_DIR) $(1)/sbin

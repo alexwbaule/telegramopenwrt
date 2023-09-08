@@ -1,0 +1,4 @@
+#!/bin/sh
+
+
+./ctx/interfaces_list "interface_restart" "Choose a Network interface to restart:" >/dev/null

@@ -1,0 +1,13 @@
+#!/bin/sh
+
+NAME="$1"
+
+OUTPUT=$(/bin/opkg install $NAME)
+if [ $? == 255 ]; then
+    echo "error installing package $NAME!"
+    echo $OUTPUT
+else
+    echo "install package done!"
+    echo $OUTPUT
+fi
+

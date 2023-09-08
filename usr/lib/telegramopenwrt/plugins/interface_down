@@ -1,0 +1,4 @@
+#!/bin/sh
+
+
+./ctx/interfaces_list "interface_down" "Choose a Network interface to down:" >/dev/null
