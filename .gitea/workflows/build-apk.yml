@@ -37,7 +37,7 @@ env:
 
 jobs:
   build_apk:
-    name: Build ${{ env.PACKAGE_NAME }} .apk (${{ inputs.openwrt_branch || 'openwrt-25.12' }})
+    name: Build telegram-openwrt .apk (${{ inputs.openwrt_branch || 'openwrt-25.12' }})
     runs-on: ubuntu-latest
 
     steps:
