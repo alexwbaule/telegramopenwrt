@@ -5,17 +5,16 @@ PKG_NAME:=telegram-openwrt
 PKG_VERSION:=1.1.1
 PKG_RELEASE:=1
 
-PKG_LICENSE:=GPL-2.0
+PKG_LICENSE:=Apache-2.0
 
 include $(INCLUDE_DIR)/package.mk
 
 define Package/telegram-openwrt
   SECTION:=net
   CATEGORY:=Network
-  TITLE:=Telegram BOT for openwrt
+  TITLE:=Telegram for openwrt BOT
   URL:=https://github.com/alexwbaule/telegramopenwrt
   PKGARCH:=all
-  TITLE:=Telegram for openwrt BOT
 endef
 
 define Package/telegram-openwrt/description

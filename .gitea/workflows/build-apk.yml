@@ -1,0 +1,105 @@
+# Workflow do Gitea Actions: compila o pacote telegram-openwrt como .apk
+# contra o branch estavel do OpenWrt 25.12 (primeira serie a substituir
+# opkg por apk como gerenciador de pacotes padrao).
+#
+# Requisitos no lado do Gitea:
+# - Um runner (act_runner) registrado, com a label usada em "runs-on" abaixo
+#   (ajuste se o seu runner usa outra label).
+# - O runner precisa resolver "uses: actions/checkout@v4" e
+#   "actions/upload-artifact@v4". Por padrao o Gitea resolve nomes curtos
+#   "actions/*" contra https://gitea.com (config [actions] DEFAULT_ACTIONS_URL),
+#   que hospeda mirrors dessas actions. Se sua instancia estiver sem acesso
+#   a internet, troque para "uses: https://SEU_GITEA/actions/checkout@v4"
+#   apontando para mirrors locais.
+# - upload-artifact@v4 requer runner >= v4.4.0 (artifacts nativos do Gitea).
+
+name: Build telegram-openwrt (apk)
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+    inputs:
+      openwrt_branch:
+        description: 'Branch/tag do OpenWrt a usar como SDK'
+        required: true
+        default: 'openwrt-25.12'
+
+env:
+  PACKAGE_NAME: telegram-openwrt
+  # Pacote e PKGARCH:=all (so shell scripts), entao o target de build
+  # escolhido aqui so precisa ser valido para gerar um SDK completo;
+  # o .apk resultante roda em qualquer arquitetura.
+  CONFIG_TARGET_BOARD: x86
+  CONFIG_TARGET_SUBTARGET: 64
+  CONFIG_TARGET_DEVICE: generic
+
+jobs:
+  build_apk:
+    name: Build ${{ env.PACKAGE_NAME }} .apk (${{ inputs.openwrt_branch || 'openwrt-25.12' }})
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout telegram-openwrt package repository
+        uses: actions/checkout@v4
+
+      - name: Install OpenWrt build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential clang flex bison g++ gawk \
+            gcc-multilib g++-multilib gettext git libncurses5-dev \
+            libssl-dev python3 python3-setuptools rsync \
+            unzip zlib1g-dev file wget ca-certificates
+
+      - name: Clone OpenWrt SDK (${{ inputs.openwrt_branch || 'openwrt-25.12' }})
+        run: |
+          BRANCH="${{ inputs.openwrt_branch || 'openwrt-25.12' }}"
+          echo "Clonando OpenWrt branch: ${BRANCH}"
+          git clone https://github.com/openwrt/openwrt.git -b "${BRANCH}" --depth 1 openwrt_sdk
+
+      - name: Update and install feeds
+        working-directory: openwrt_sdk
+        run: |
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Drop package into the SDK tree
+        run: |
+          mkdir -p openwrt_sdk/package/${PACKAGE_NAME}
+          cp -R "${GITHUB_WORKSPACE}"/{Makefile,etc,sbin,usr} openwrt_sdk/package/${PACKAGE_NAME}/
+          ls -lA openwrt_sdk/package/${PACKAGE_NAME}
+
+      - name: Generate .config
+        working-directory: openwrt_sdk
+        run: |
+          CONFIG_PKG_NAME="CONFIG_PACKAGE_${PACKAGE_NAME//-/_}"
+          {
+            echo "CONFIG_TARGET_${CONFIG_TARGET_BOARD}=y"
+            echo "CONFIG_TARGET_${CONFIG_TARGET_BOARD}_${CONFIG_TARGET_SUBTARGET}=y"
+            echo "CONFIG_TARGET_${CONFIG_TARGET_BOARD}_${CONFIG_TARGET_SUBTARGET}_DEVICE_${CONFIG_TARGET_DEVICE}=y"
+            echo "${CONFIG_PKG_NAME}=m"
+          } > .config
+          make defconfig
+          echo "Selecao do pacote no .config final:"
+          grep "${CONFIG_PKG_NAME}" .config
+
+      - name: Compile the package
+        working-directory: openwrt_sdk
+        run: make package/${PACKAGE_NAME}/compile V=s -j"$(nproc)"
+
+      - name: Locate generated .apk
+        working-directory: openwrt_sdk
+        run: |
+          echo "Arquivos .apk gerados:"
+          find bin/packages -name "${PACKAGE_NAME}*.apk" -print
+          find bin/packages -name "${PACKAGE_NAME}*.apk" -print -quit | grep -q . \
+            || { echo "::error::Nenhum .apk gerado para ${PACKAGE_NAME}"; exit 1; }
+
+      - name: Upload .apk artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.PACKAGE_NAME }}-apk-${{ inputs.openwrt_branch || 'openwrt-25.12' }}
+          path: openwrt_sdk/bin/packages/*/*/${{ env.PACKAGE_NAME }}*.apk
+          if-no-files-found: error
