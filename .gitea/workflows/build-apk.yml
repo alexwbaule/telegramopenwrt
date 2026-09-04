@@ -74,7 +74,10 @@ jobs:
       - name: Generate .config
         working-directory: openwrt_sdk
         run: |
-          CONFIG_PKG_NAME="CONFIG_PACKAGE_${PACKAGE_NAME//-/_}"
+          # Simbolos CONFIG_PACKAGE_* do OpenWrt preservam hifen (ex:
+          # CONFIG_PACKAGE_libustream-openssl), entao NAO convertemos para
+          # underscore aqui.
+          CONFIG_PKG_NAME="CONFIG_PACKAGE_${PACKAGE_NAME}"
           {
             echo "CONFIG_TARGET_${CONFIG_TARGET_BOARD}=y"
             echo "CONFIG_TARGET_${CONFIG_TARGET_BOARD}_${CONFIG_TARGET_SUBTARGET}=y"
