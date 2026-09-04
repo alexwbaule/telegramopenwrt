@@ -1,6 +1,10 @@
 # Workflow do Gitea Actions: compila o pacote telegram-openwrt como .apk
-# contra o branch estavel do OpenWrt 25.12 (primeira serie a substituir
-# opkg por apk como gerenciador de pacotes padrao).
+# usando o SDK pre-compilado do OpenWrt (baixado de downloads.openwrt.org),
+# em vez de clonar e compilar o buildroot inteiro do zero. O SDK ja vem com
+# toolchain e ferramentas de host prontas, o que evita ter que compilar
+# gcc/libs do zero a cada build (muito mais rapido) e evita depender de
+# variaveis de ambiente para selecionar o target (o SDK ja e fixo para uma
+# arquitetura). Documentacao oficial: https://openwrt.org/docs/guide-developer/start
 #
 # Requisitos no lado do Gitea:
 # - Um runner (act_runner) registrado, com a label usada em "runs-on" abaixo
@@ -12,6 +16,7 @@
 #   a internet, troque para "uses: https://SEU_GITEA/actions/checkout@v4"
 #   apontando para mirrors locais.
 # - upload-artifact@v4 requer runner >= v4.4.0 (artifacts nativos do Gitea).
+# - O runner precisa de acesso a downloads.openwrt.org para baixar o SDK.
 
 name: Build telegram-openwrt (apk)
 
@@ -21,43 +26,58 @@ on:
       - master
   workflow_dispatch:
     inputs:
-      openwrt_branch:
-        description: 'Branch/tag do OpenWrt a usar como SDK'
+      openwrt_version:
+        description: 'Versao de release do OpenWrt (ex: 25.12.0) ou "snapshot"'
         required: true
-        default: 'openwrt-25.12'
+        default: '25.12.0'
 
 env:
   PACKAGE_NAME: telegram-openwrt
-  # Pacote e PKGARCH:=all (so shell scripts), entao o target de build
-  # escolhido aqui so precisa ser valido para gerar um SDK completo;
+  # Pacote e PKGARCH:=all (so shell scripts), entao o SDK/arquitetura
+  # escolhido aqui so precisa ser valido para gerar um ambiente de build;
   # o .apk resultante roda em qualquer arquitetura.
-  CONFIG_TARGET_BOARD: x86
-  CONFIG_TARGET_SUBTARGET: 64
-  CONFIG_TARGET_DEVICE: generic
+  SDK_BOARD: x86
+  SDK_SUBTARGET: '64'
 
 jobs:
   build_apk:
-    name: Build telegram-openwrt .apk (${{ inputs.openwrt_branch || 'openwrt-25.12' }})
+    name: Build telegram-openwrt .apk (${{ inputs.openwrt_version || '25.12.0' }})
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout telegram-openwrt package repository
         uses: actions/checkout@v4
 
-      - name: Install OpenWrt build dependencies
+      - name: Install build dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            build-essential clang flex bison g++ gawk \
-            gcc-multilib g++-multilib gettext git libncurses5-dev \
-            libssl-dev python3 python3-setuptools rsync \
-            unzip zlib1g-dev file wget ca-certificates
+            build-essential flex bison gawk gettext \
+            libncurses5-dev libssl-dev python3 rsync \
+            unzip zlib1g-dev zstd file wget ca-certificates
 
-      - name: Clone OpenWrt SDK (${{ inputs.openwrt_branch || 'openwrt-25.12' }})
+      - name: Download OpenWrt SDK (${{ inputs.openwrt_version || '25.12.0' }})
         run: |
-          BRANCH="${{ inputs.openwrt_branch || 'openwrt-25.12' }}"
-          echo "Clonando OpenWrt branch: ${BRANCH}"
-          git clone https://github.com/openwrt/openwrt.git -b "${BRANCH}" --depth 1 openwrt_sdk
+          VERSION="${{ inputs.openwrt_version || '25.12.0' }}"
+          if [ "${VERSION}" = "snapshot" ]; then
+            BASE_URL="https://downloads.openwrt.org/snapshots/targets/${SDK_BOARD}/${SDK_SUBTARGET}"
+          else
+            BASE_URL="https://downloads.openwrt.org/releases/${VERSION}/targets/${SDK_BOARD}/${SDK_SUBTARGET}"
+          fi
+          echo "Procurando SDK em ${BASE_URL} ..."
+          SUMS_FILE="$(mktemp)"
+          curl -fsSL -o "${SUMS_FILE}" "${BASE_URL}/sha256sums"
+          SDK_FILE="$(grep -o 'openwrt-sdk-[^ *]*\.tar\.zst' "${SUMS_FILE}" | head -n1)"
+          if [ -z "${SDK_FILE}" ]; then
+            echo "::error::Nao encontrei um SDK tarball em ${BASE_URL}"
+            exit 1
+          fi
+          echo "Baixando ${SDK_FILE} ..."
+          curl -fsSL -o "${SDK_FILE}" "${BASE_URL}/${SDK_FILE}"
+          echo "Verificando checksum..."
+          grep "${SDK_FILE}" "${SUMS_FILE}" | sha256sum -c -
+          mkdir -p openwrt_sdk
+          tar --use-compress-program=unzstd -xf "${SDK_FILE}" -C openwrt_sdk --strip-components=1
 
       - name: Update and install feeds
         working-directory: openwrt_sdk
@@ -78,12 +98,7 @@ jobs:
           # CONFIG_PACKAGE_libustream-openssl), entao NAO convertemos para
           # underscore aqui.
           CONFIG_PKG_NAME="CONFIG_PACKAGE_${PACKAGE_NAME}"
-          {
-            echo "CONFIG_TARGET_${CONFIG_TARGET_BOARD}=y"
-            echo "CONFIG_TARGET_${CONFIG_TARGET_BOARD}_${CONFIG_TARGET_SUBTARGET}=y"
-            echo "CONFIG_TARGET_${CONFIG_TARGET_BOARD}_${CONFIG_TARGET_SUBTARGET}_DEVICE_${CONFIG_TARGET_DEVICE}=y"
-            echo "${CONFIG_PKG_NAME}=m"
-          } > .config
+          echo "${CONFIG_PKG_NAME}=m" > .config
           make defconfig
           echo "Selecao do pacote no .config final:"
           grep "${CONFIG_PKG_NAME}" .config
@@ -103,6 +118,6 @@ jobs:
       - name: Upload .apk artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.PACKAGE_NAME }}-apk-${{ inputs.openwrt_branch || 'openwrt-25.12' }}
+          name: ${{ env.PACKAGE_NAME }}-apk-${{ inputs.openwrt_version || '25.12.0' }}
           path: openwrt_sdk/bin/packages/*/*/${{ env.PACKAGE_NAME }}*.apk
           if-no-files-found: error
