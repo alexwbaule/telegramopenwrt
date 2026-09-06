@@ -116,7 +116,12 @@ jobs:
             || { echo "::error::Nenhum .apk gerado para ${PACKAGE_NAME}"; exit 1; }
 
       - name: Upload .apk artifact
-        uses: actions/upload-artifact@v4
+        # v4+ do @actions/artifact se recusa a rodar em instancias detectadas
+        # como GHES (o que inclui o Gitea, dependendo da versao/runner) com
+        # "GHESNotSupportedError". v3 usa o backend antigo, sem essa checagem,
+        # e funciona no Gitea. (No GitHub.com isso nao seria necessario, mas
+        # v3 la ja foi desativado - por isso o workflow do GitHub usa v4.)
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ env.PACKAGE_NAME }}-apk-${{ inputs.openwrt_version || '25.12.0' }}
           path: openwrt_sdk/bin/packages/*/*/${{ env.PACKAGE_NAME }}*.apk
