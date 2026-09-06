@@ -14,12 +14,19 @@ on:
   push:
     branches:
       - master
+    tags:
+      - '*'
   workflow_dispatch:
     inputs:
       openwrt_version:
         description: 'Versao de release do OpenWrt (ex: 25.12.0) ou "snapshot"'
         required: true
         default: '25.12.0'
+
+# Necessario para o step de release (abaixo) poder criar releases e subir
+# o .apk como anexo quando o push for de uma tag.
+permissions:
+  contents: write
 
 env:
   PACKAGE_NAME: telegram-openwrt
@@ -111,3 +118,24 @@ jobs:
           name: ${{ env.PACKAGE_NAME }}-apk-${{ inputs.openwrt_version || '25.12.0' }}
           path: openwrt_sdk/bin/packages/*/*/${{ env.PACKAGE_NAME }}*.apk
           if-no-files-found: error
+
+      # So roda quando o workflow foi disparado por um push de tag
+      # (ex: "git tag v1.1.1 && git push origin v1.1.1"). Cria (ou reaproveita,
+      # se ja existir) uma GitHub Release para a tag e anexa o .apk gerado.
+      - name: Create GitHub Release and attach .apk
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: openwrt_sdk
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          APK_FILE="$(find bin/packages -name "${PACKAGE_NAME}*.apk" -print -quit)"
+          echo "Publicando ${APK_FILE} na release ${TAG}..."
+          if gh release view "${TAG}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+            gh release upload "${TAG}" "${APK_FILE}" --repo "${GITHUB_REPOSITORY}" --clobber
+          else
+            gh release create "${TAG}" "${APK_FILE}" \
+              --repo "${GITHUB_REPOSITORY}" \
+              --title "${TAG}" \
+              --generate-notes
+          fi

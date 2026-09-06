@@ -24,12 +24,19 @@ on:
   push:
     branches:
       - master
+    tags:
+      - '*'
   workflow_dispatch:
     inputs:
       openwrt_version:
         description: 'Versao de release do OpenWrt (ex: 25.12.0) ou "snapshot"'
         required: true
         default: '25.12.0'
+
+# Necessario para o step de release (abaixo) poder criar releases e subir
+# o .apk como anexo quando o push for de uma tag.
+permissions:
+  contents: write
 
 env:
   PACKAGE_NAME: telegram-openwrt
@@ -54,7 +61,7 @@ jobs:
           sudo apt-get install -y --no-install-recommends \
             build-essential flex bison gawk gettext \
             libncurses5-dev libssl-dev python3 rsync \
-            unzip zlib1g-dev zstd file wget ca-certificates
+            unzip zlib1g-dev zstd file wget ca-certificates jq
 
       - name: Download OpenWrt SDK (${{ inputs.openwrt_version || '25.12.0' }})
         run: |
@@ -126,3 +133,34 @@ jobs:
           name: ${{ env.PACKAGE_NAME }}-apk-${{ inputs.openwrt_version || '25.12.0' }}
           path: openwrt_sdk/bin/packages/*/*/${{ env.PACKAGE_NAME }}*.apk
           if-no-files-found: error
+
+      # So roda quando o workflow foi disparado por um push de tag
+      # (ex: "git tag v1.1.1 && git push gitea v1.1.1"). Cria (ou reaproveita,
+      # se ja existir) uma Release no Gitea para a tag e anexa o .apk gerado,
+      # via API REST do Gitea (nao existe "gh" CLI generico para Gitea).
+      # secrets.GITHUB_TOKEN aqui e o token automatico que o Gitea Actions
+      # injeta por job, com permissao sobre o proprio repositorio.
+      - name: Create Gitea Release and attach .apk
+        if: startsWith(github.ref, 'refs/tags/')
+        working-directory: openwrt_sdk
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          APK_FILE="$(find bin/packages -name "${PACKAGE_NAME}*.apk" -print -quit)"
+          API="${{ github.server_url }}/api/v1/repos/${{ github.repository }}"
+          AUTH="Authorization: token ${{ secrets.GITHUB_TOKEN }}"
+
+          RELEASE_ID="$(curl -fsSL -H "${AUTH}" "${API}/releases/tags/${TAG}" | jq -r '.id // empty')"
+
+          if [ -z "${RELEASE_ID}" ]; then
+            echo "Criando release ${TAG}..."
+            RELEASE_ID="$(curl -fsSL -X POST -H "${AUTH}" -H "Content-Type: application/json" \
+              -d "$(jq -n --arg tag "${TAG}" '{tag_name:$tag, name:$tag}')" \
+              "${API}/releases" | jq -r '.id')"
+          else
+            echo "Release ${TAG} ja existe (id=${RELEASE_ID}), reaproveitando."
+          fi
+
+          echo "Publicando ${APK_FILE} na release ${RELEASE_ID}..."
+          curl -fsSL -X POST -H "${AUTH}" \
+            -F "attachment=@${APK_FILE}" \
+            "${API}/releases/${RELEASE_ID}/assets?name=$(basename "${APK_FILE}")"
